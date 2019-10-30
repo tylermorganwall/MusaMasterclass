@@ -1,52 +1,91 @@
----
-output: github_document
-editor_options: 
-  chunk_output_type: console
----
- ---
-title: "PennMUSA"
-author: "Tyler Morgan-Wall"
-date: "9/14/2019"
-output: html_document
-editor_options: 
-  chunk_output_type: console
----
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
-```
+|                              |
+| ---------------------------- |
+| itle: “PennMUSA”             |
+| uthor: “Tyler Morgan-Wall”   |
+| ate: “9/14/2019”             |
+| utput: html\_document        |
+| ditor\_options:              |
+| chunk\_output\_type: console |
 
-#UPenn Masterclass: 3D Mapping and Visualization with R and Rayshader
+\#UPenn Masterclass: 3D Mapping and Visualization with R and Rayshader
 
 Tyler Morgan-Wall (@tylermorganwall), Institute for Defense Analyses
 
-Personal website: https://www.tylermw.com
-Rayshader website: https://www.rayshader.com
-Github: https://www.github.com/tylermorganwall
+Personal website: <https://www.tylermw.com> Rayshader website:
+<https://www.rayshader.com> Github:
+<https://www.github.com/tylermorganwall>
 
-```{r, warning=FALSE}
+``` r
 # install.packages("whitebox", repos="http://R-Forge.R-project.org")
 remotes::install_github("giswqs/whiteboxR")
+```
+
+    ## Skipping install of 'whitebox' from a github remote, the SHA1 (af5f3c0d) has not changed since last install.
+    ##   Use `force = TRUE` to force installation
+
+``` r
 whitebox::wbt_init()
 library(ggplot2)
 library(whitebox)
 library(rayshader)
 library(geoviz)
 library(raster)
+```
+
+    ## Loading required package: sp
+
+``` r
 library(spatstat)
+```
+
+    ## Loading required package: spatstat.data
+
+    ## Loading required package: nlme
+
+    ## 
+    ## Attaching package: 'nlme'
+
+    ## The following object is masked from 'package:raster':
+    ## 
+    ##     getData
+
+    ## Loading required package: rpart
+
+    ## Registered S3 method overwritten by 'spatstat':
+    ##   method      from  
+    ##   plot.imlist imager
+
+    ## 
+    ## spatstat 1.61-0       (nickname: 'Puppy zoomies') 
+    ## For an introduction to spatstat, type 'beginner'
+
+    ## 
+    ## Attaching package: 'spatstat'
+
+    ## The following objects are masked from 'package:raster':
+    ## 
+    ##     area, rotate, shift
+
+``` r
 library(spatstat.utils)
 library(suncalc)
 library(sp)
 setwd("~/Desktop/musa/")
-
 ```
 
-We're first going to start by demoing how digital elevation models (DEMs) have traditionally been displayed. Here, we load in a DEM of the ____ river in Hobart, Tasmania. We'll plot it using both the image and plot functions to see how elevation data is traditionally displayed--mapping elevation directly to color.
+We’re first going to start by demoing how digital elevation models
+(DEMs) have traditionally been displayed. Here, we load in a DEM of the
+\_\_\_\_ river in Hobart, Tasmania. We’ll plot it using both the image
+and plot functions to see how elevation data is traditionally
+displayed–mapping elevation directly to color.
 
-Let's take a raster object and extract a bare R matrix to work with rayshader. To convert the data from the raster format to a bare matrix, we will use the rayshader function `raster_to_matrix()`.  We will first visualize the data with the base R `image()` function.
+Let’s take a raster object and extract a bare R matrix to work with
+rayshader. To convert the data from the raster format to a bare matrix,
+we will use the rayshader function `raster_to_matrix()`. We will first
+visualize the data with the base R `image()` function.
 
-```{r}
-
+``` r
 loadzip = tempfile() 
 download.file("https://tylermw.com/data/dem_01.tif.zip", loadzip)
 hobart_tif = raster::raster(unzip(loadzip, "dem_01.tif"))
@@ -55,131 +94,201 @@ unlink(loadzip)
 hobart_mat = raster_to_matrix(hobart_tif)
 
 image(hobart_mat)
-
 ```
 
-The `image()` function orients data differently than it is in reality--the image is flipped vertically. Let's use rayshader's `height_shade()` function, which performs the same mapping but orients the resulting map correctly. Here, the default uses `terrain.colors()` instead of the yellow-to-red mapping.
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
-```{r}
+The `image()` function orients data differently than it is in
+reality–the image is flipped vertically. Let’s use rayshader’s
+`height_shade()` function, which performs the same mapping but orients
+the resulting map correctly. Here, the default uses `terrain.colors()`
+instead of the yellow-to-red mapping.
 
+``` r
 hobart_mat %>%
   height_shade() %>%
   plot_map()
-
 ```
 
-Where in nature does color map to elevation? Usually, you get this kind of mapping on large scale topographic features, such as a tree line on a mountain. Here's a nice illustration o from the 1848 book by Alexander Keith Johnston showing that elevation-to-color mapping:
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+Where in nature does color map to elevation? Usually, you get this kind
+of mapping on large scale topographic features, such as a tree line on a
+mountain. Here’s a nice illustration o from the 1848 book by Alexander
+Keith Johnston showing that elevation-to-color mapping:
 
 ![Figure X: Height maps to elevation](images/topography_color.png)
 
-On smaller scale (more human-sized) features like hills or dunes, the color is dominated by instead by lighting and how the sun hits the surface. The surfaces aren't colored by elevation--rather, their colors is largely determined by the angle the surface along with the direction of the light.
+On smaller scale (more human-sized) features like hills or dunes, the
+color is dominated by instead by lighting and how the sun hits the
+surface. The surfaces aren’t colored by elevation–rather, their colors
+is largely determined by the angle the surface along with the direction
+of the light.
 
-Note the (sometimes drastic) change in surface color when the lighting changes:
+Note the (sometimes drastic) change in surface color when the lighting
+changes:
 
-![Figure X: How lighting affects terrain colors. Great Sand Dunes National Park, CO.](images/sanddunessmall.png)
+![Figure X: How lighting affects terrain colors. Great Sand Dunes
+National Park, CO.](images/sanddunessmall.png)
 
-Rather than color by elevation, let's try coloring the surface by the direction the slope is facing and the steepness of that slope. This is implemented in the rayshader function, `sphere_shade()`. Here's a video explanation of how it works:
+Rather than color by elevation, let’s try coloring the surface by the
+direction the slope is facing and the steepness of that slope. This is
+implemented in the rayshader function, `sphere_shade()`. Here’s a video
+explanation of how it works:
 
-<br>
-<video controls>
-  <source src="https://www.tylermw.com/wp-content/uploads/2018/06/fullcombined_web.mp4" type="video/mp4">
-</video>
-<br>
+<br> <video controls>
+<source src="https://www.tylermw.com/wp-content/uploads/2018/06/fullcombined_web.mp4" type="video/mp4">
+</video> <br>
 
-We'll take this and plug it into the `sphere_shade()` function, which performs this mapping of surface direction and slope to color.
+We’ll take this and plug it into the `sphere_shade()` function, which
+performs this mapping of surface direction and slope to color.
 
-```{r}
-
+``` r
 #Example of data stored in hobart_mat object:
 hobart_mat[1:10,1:10]
+```
 
+    ##       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]
+    ##  [1,]  750  749  748  745  743  743  743  743  744   744
+    ##  [2,]  751  751  751  749  749  748  747  748  749   749
+    ##  [3,]  750  753  754  753  752  751  751  752  753   754
+    ##  [4,]  749  753  756  757  756  755  757  758  758   760
+    ##  [5,]  749  754  757  759  760  760  761  763  765   767
+    ##  [6,]  755  760  761  765  769  769  767  768  770   773
+    ##  [7,]  762  767  768  771  772  773  772  772  775   777
+    ##  [8,]  768  771  771  772  774  774  775  776  778   781
+    ##  [9,]  769  771  771  771  773  775  776  777  779   782
+    ## [10,]  767  770  770  770  771  773  775  776  779   782
+
+``` r
 hobart_mat %>%
   sphere_shade() %>%
   plot_map()
-
 ```
 
-We note right away that it's much more apparent in this image that there is a body of water (the River Derwent) in the middle of this image, weaving between the two mountains. While this feature wasn't apparent in the more tradition height-to-color mapping, it becomes immediately visible when we color by slope.
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
-In fact, rayshader includes two functions, `detect_water()` and `add_water()`, that allow you to detect and add bodies of water directly to the hillshade via the elevation data. This works by looking for large, relatively flat, connected regions in a DEM. Usually, large extremely flat areas are water, but occasionally these functions can result in false positives. `detect_water()` provides the parameters `min_area` and `cutoff` in `detect_water()` so the user can try to . `min_area` specifies the minimum number of connected flat points that constitute a body of water. `cutoff` determines how vertical a surface as to be to be defined as flat: `cutoff = 1.0` only accepts areas pointing straight up as flat, while `cutoff = 0.99` allows for areas that are slightly less than flat to be classified as water. The default is `cutoff = 0.999`.
+We note right away that it’s much more apparent in this image that there
+is a body of water (the River Derwent) in the middle of this image,
+weaving between the two mountains. While this feature wasn’t apparent in
+the more tradition height-to-color mapping, it becomes immediately
+visible when we color by slope.
 
-```{r}
+In fact, rayshader includes two functions, `detect_water()` and
+`add_water()`, that allow you to detect and add bodies of water directly
+to the hillshade via the elevation data. This works by looking for
+large, relatively flat, connected regions in a DEM. Usually, large
+extremely flat areas are water, but occasionally these functions can
+result in false positives. `detect_water()` provides the parameters
+`min_area` and `cutoff` in `detect_water()` so the user can try to .
+`min_area` specifies the minimum number of connected flat points that
+constitute a body of water. `cutoff` determines how vertical a surface
+as to be to be defined as flat: `cutoff = 1.0` only accepts areas
+pointing straight up as flat, while `cutoff = 0.99` allows for areas
+that are slightly less than flat to be classified as water. The default
+is `cutoff = 0.999`.
 
+``` r
 hobart_mat %>%
   sphere_shade() %>%
   add_water(detect_water(hobart_mat, min_area = 10), color="blue") %>%
   plot_map()
-
 ```
 
-If increase the minimum required area to be classified as water, we will fix the flat areas at the top of the map that are being erroneously catagorized as water.
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
-```{r}
+If increase the minimum required area to be classified as water, we will
+fix the flat areas at the top of the map that are being erroneously
+catagorized as water.
 
+``` r
 hobart_mat %>%
   sphere_shade() %>%
   add_water(detect_water(hobart_mat,  min_area = 200), color="blue") %>%
   plot_map()
-
 ```
 
-The default is to look for flat regions 1/400th the area of the matrix. There's nothing special about this number, but it's a default that tended to work fairly well for several datasets I tested it on, but it's a parameter you can adjust to suit your dataset. Here we'll also use the default water color.
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
-```{r}
+The default is to look for flat regions 1/400th the area of the matrix.
+There’s nothing special about this number, but it’s a default that
+tended to work fairly well for several datasets I tested it on, but it’s
+a parameter you can adjust to suit your dataset. Here we’ll also use the
+default water color.
 
+``` r
 hobart_mat %>%
   sphere_shade() %>%
   add_water(detect_water(hobart_mat)) %>%
   plot_map()
-
 ```
 
-Rayshader's name comes the method it uses to calculate hillshades: raytracing, which realisticly simulates how light travels across the elevation model. Most traditional methods of hillshading only use the local angle that the surface makes with the light, and do not take into account areas that actually cast a shadow. This basic type of hillshading is sometimes referred to as "lambertian", and is implemented in the function `lamb_shade()`.
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
-```{r}
+Rayshader’s name comes the method it uses to calculate hillshades:
+raytracing, which realisticly simulates how light travels across the
+elevation model. Most traditional methods of hillshading only use the
+local angle that the surface makes with the light, and do not take into
+account areas that actually cast a shadow. This basic type of
+hillshading is sometimes referred to as “lambertian”, and is implemented
+in the function `lamb_shade()`.
 
+``` r
 hobart_mat %>%
   lamb_shade(zscale=33) %>%
   plot_map()
-
 ```
 
-To shade surfaces using raytracing, rayshader draws rays originating from each point towards a light source, specified using the `sunangle` and `anglebreaks` argument. The light by default has a fixed angular width the size of the sun, but the distribution can also be set in the argument `anglebreaks`. Here are two gifs showing how rayshader calculates shadows with `ray_shade`:
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
-![Figure X: Demonstration of how ray_shade() raytraces images](images/ray.gif)
+To shade surfaces using raytracing, rayshader draws rays originating
+from each point towards a light source, specified using the `sunangle`
+and `anglebreaks` argument. The light by default has a fixed angular
+width the size of the sun, but the distribution can also be set in the
+argument `anglebreaks`. Here are two gifs showing how rayshader
+calculates shadows with `ray_shade`:
 
-![Figure X: ray_shade() determines the amount of shadow at a single source by sending out rays and testing for intersections with the heightmap. The amount of shadow is proportional to the number of rays that don't make it to the light.](images/bilinear.gif)
+![Figure X: Demonstration of how ray\_shade() raytraces
+images](images/ray.gif)
 
-Let's add a layer of shadows to this map, using the `add_shadow()` and `ray_shade()` functions. We layer our shadows to our `sphere_shade()` base color layer.
+![Figure X: ray\_shade() determines the amount of shadow at a single
+source by sending out rays and testing for intersections with the
+heightmap. The amount of shadow is proportional to the number of rays
+that don’t make it to the light.](images/bilinear.gif)
 
-```{r}
+Let’s add a layer of shadows to this map, using the `add_shadow()` and
+`ray_shade()` functions. We layer our shadows to our `sphere_shade()`
+base color layer.
 
+``` r
 hobart_mat %>%
   lamb_shade(zscale=33) %>%
   add_shadow(ray_shade(hobart_mat, zscale=33, sunaltitude = 3, lambert = FALSE), 0.3) %>%
   plot_map()
-
 ```
+
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 We can combine all these together to make our final 2D map:
 
-```{r}
-
+``` r
 hobart_mat %>%
   sphere_shade() %>%
   add_water(detect_water(hobart_mat), color="lightblue") %>%
   add_shadow(ray_shade(hobart_mat,zscale=33, sunaltitude = 3,lambert = FALSE), max_darken = 0.5) %>%
   add_shadow(lamb_shade(hobart_mat,zscale=33,sunaltitude = 3), max_darken = 0.5) %>%
   plot_map()
-
 ```
 
-We can adjust the highlight/sun direction using the `sunangle` argument in both the `sphere_shade()` function and the `ray_shade()` function.
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
-We'll start witht the default angle: 315 degrees, or the light from the Northwest. One question you might ask yourself:
+We can adjust the highlight/sun direction using the `sunangle` argument
+in both the `sphere_shade()` function and the `ray_shade()` function.
 
+We’ll start witht the default angle: 315 degrees, or the light from the
+Northwest. One question you might ask yourself:
 
-```{r}
+``` r
 #Default angle: 315 degrees.
 
 hobart_mat %>%
@@ -189,7 +298,11 @@ hobart_mat %>%
              max_darken = 0.5) %>%
   add_shadow(lamb_shade(hobart_mat,zscale=33,sunaltitude = 5), max_darken = 0.8) %>%
   plot_map()
+```
 
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
 #45 degrees
 
 hobart_mat %>%
@@ -199,7 +312,11 @@ hobart_mat %>%
              max_darken = 0.5) %>%
   add_shadow(lamb_shade(hobart_mat,zscale=33,sunaltitude = 5), max_darken = 0.8) %>%
   plot_map()
+```
 
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+
+``` r
 #135 degrees
 
 hobart_mat %>%
@@ -209,7 +326,11 @@ hobart_mat %>%
              max_darken = 0.5) %>%
   add_shadow(lamb_shade(hobart_mat,zscale=33,sunaltitude = 5), max_darken = 0.8) %>%
   plot_map()
+```
 
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-11-3.png)<!-- -->
+
+``` r
 #225 degrees
 
 hobart_mat %>%
@@ -219,19 +340,28 @@ hobart_mat %>%
              max_darken = 0.5) %>%
   add_shadow(lamb_shade(hobart_mat,zscale=33,sunaltitude = 5), max_darken = 0.8) %>%
   plot_map()
-
 ```
 
-We can also add the effect of ambient occlusion, which in cartography is sometimes called the "sky view factor." When light travels through the atmosphere, it scatters. This scattering turns the entire sky into a light source, so when less of the sky is visible (e.g. in a valley) it's darker than when the entire sky is visible (e.g. on a mountain ridge). 
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-11-4.png)<!-- -->
 
-Let's calculate the ambient occlusion shadow layer for the Hobart data, and layer it onto the rest of the map.
+We can also add the effect of ambient occlusion, which in cartography is
+sometimes called the “sky view factor.” When light travels through the
+atmosphere, it scatters. This scattering turns the entire sky into a
+light source, so when less of the sky is visible (e.g. in a valley) it’s
+darker than when the entire sky is visible (e.g. on a mountain ridge).
 
-```{r ambient_occlusion}
+Let’s calculate the ambient occlusion shadow layer for the Hobart data,
+and layer it onto the rest of the map.
 
+``` r
 hobart_mat %>%
   ambient_shade() %>%
   plot_map()
+```
 
+![](MusaMasterclass_files/figure-gfm/ambient_occlusion-1.png)<!-- -->
+
+``` r
 hobart_mat %>%
   sphere_shade() %>%
   add_water(detect_water(hobart_mat), color="lightblue") %>%
@@ -239,7 +369,11 @@ hobart_mat %>%
              max_darken = 0.5) %>%
   add_shadow(lamb_shade(hobart_mat,zscale=33, sunaltitude = 5), max_darken = 0.7) %>%
   plot_map()
+```
 
+![](MusaMasterclass_files/figure-gfm/ambient_occlusion-2.png)<!-- -->
+
+``` r
 hobart_mat %>%
   sphere_shade() %>%
   add_water(detect_water(hobart_mat), color="lightblue") %>%
@@ -248,14 +382,18 @@ hobart_mat %>%
   add_shadow(lamb_shade(hobart_mat,zscale=33, sunaltitude = 5), max_darken = 0.7) %>%
   add_shadow(ambient_shade(hobart_mat), max_darken = 0) %>%
   plot_map()
-
 ```
 
-Now that we know how to perform basic hillshading, we can begin the fun part: making 3D maps. In rayshader, we do that simply by swapping out `plot_map()` with `plot_3d()`, and adding the heightmap to the function call. We don't want to re-compute the shadows every time we replot the landscape, so lets save them to a variable.
+![](MusaMasterclass_files/figure-gfm/ambient_occlusion-3.png)<!-- -->
 
+Now that we know how to perform basic hillshading, we can begin the fun
+part: making 3D maps. In rayshader, we do that simply by swapping out
+`plot_map()` with `plot_3d()`, and adding the heightmap to the function
+call. We don’t want to re-compute the shadows every time we replot the
+landscape, so lets save them to a
+variable.
 
-```{r}
-
+``` r
 rayshadows = ray_shade(hobart_mat, sunaltitude=3, zscale=33, lambert = FALSE)
 lambshadows = lamb_shade(hobart_mat, sunaltitude=3, zscale=33)
 ambientshadows = ambient_shade(hobart_mat)
@@ -267,80 +405,115 @@ hobart_mat %>%
   add_shadow(lambshadows, max_darken = 0.7) %>%
   add_shadow(ambientshadows, max_darken = 0) %>%
   plot_3d(hobart_mat, zscale=10,windowsize=c(600,600))
-
 ```
 
-This opens up an X11 window that displays the 3D plot. Draw to manipulate the plot, and control/ctrl drag to zoom in and out. To close it, we can either close the window itself, or type in `rgl::rgl.close()`.
+This opens up an X11 window that displays the 3D plot. Draw to
+manipulate the plot, and control/ctrl drag to zoom in and out. To close
+it, we can either close the window itself, or type in
+`rgl::rgl.close()`.
 
-Just visualizing this on your screen is fun when exploring the data, but we would also like to export our figure to an image file. If you want to take a snapshot of the current view, rayshader provide the `render_snapshot()` function. If you use this without a filename, it will write and display the plot to the current device. With a filename, it will write the image to a PNG file in the local directory.
+Just visualizing this on your screen is fun when exploring the data, but
+we would also like to export our figure to an image file. If you want to
+take a snapshot of the current view, rayshader provide the
+`render_snapshot()` function. If you use this without a filename, it
+will write and display the plot to the current device. With a filename,
+it will write the image to a PNG file in the local directory.
 
-```{r}
-
+``` r
 render_snapshot()
+```
+
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+``` r
 render_snapshot(title_text = "River Derwent, Tasmania", 
                 title_font = "Helvetica", 
                 title_color = "darkgreen")
+```
+
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
+
+``` r
 render_snapshot(filename = "derwent.png")
 
 rgl::rgl.close()
-
 ```
 
-One of the. Here, we'll use the built-in `montereybay` dataset, which includes both bathymetric and topographic data for Monterey Bay, California. We'll include a transparent water layer by setting `water = TRUE` in `plot_3d()`, and add lines showing the edges of the water by setting `waterlinecolor`.
+One of the. Here, we’ll use the built-in `montereybay` dataset, which
+includes both bathymetric and topographic data for Monterey Bay,
+California. We’ll include a transparent water layer by setting `water =
+TRUE` in `plot_3d()`, and add lines showing the edges of the water by
+setting `waterlinecolor`.
 
-```{r}
-
+``` r
 montereybay %>%
   sphere_shade() %>%
   plot_3d(montereybay, theta=-45, water=TRUE, waterlinecolor = "white")
+```
+
+    ## `montereybay` dataset used with no zscale--setting `zscale=50`.  For a realistic depiction, raise `zscale` to 200.
+
+``` r
 render_snapshot()
-
 ```
 
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
+<https://maps.psiee.psu.edu/preview/map.ashx?layer=2021>
 
-https://maps.psiee.psu.edu/preview/map.ashx?layer=2021
-
-
-```{r}
-
+``` r
 rgl::rgl.close()
-
 ```
 
-Now that we know how to use rayshader, let's use it to create and visualize some data! Back in 2015, the New York Times Upshot had a fantastic piece by Quoctrung Bui and Jeremy White on mapping the shadows of New York City. 
+Now that we know how to use rayshader, let’s use it to create and
+visualize some data\! Back in 2015, the New York Times Upshot had a
+fantastic piece by Quoctrung Bui and Jeremy White on mapping the shadows
+of New York
+City.
 
-https://www.nytimes.com/interactive/2016/12/21/upshot/Mapping-the-Shadows-of-New-York-City.html
+<https://www.nytimes.com/interactive/2016/12/21/upshot/Mapping-the-Shadows-of-New-York-City.html>
 
-They took three days in the year and mapped out how much each spot in the city spent in shadow: the winter solstice (December 21st), the summer solstice (June 21st), and the autumnal equinox (Sept 22nd). They worked with researchers at the Tandon school of Engineering at NYU to develop a raytracer to perform these calculations. This type of analysis is particularly timely with the explosion of so-called "pencil towers" in Manhattan--extremely tall, skinny skyscrapers lining Central Park. When
+They took three days in the year and mapped out how much each spot in
+the city spent in shadow: the winter solstice (December 21st), the
+summer solstice (June 21st), and the autumnal equinox (Sept 22nd). They
+worked with researchers at the Tandon school of Engineering at NYU to
+develop a raytracer to perform these calculations. This type of analysis
+is particularly timely with the explosion of so-called “pencil towers”
+in Manhattan–extremely tall, skinny skyscrapers lining Central Park.
+When
 
-We are going to perform and visualize a similar analysis for erecting a hypothetic "pencil tower" in West Philadelphia using lidar data from Pennsylvania and rayshader.
+We are going to perform and visualize a similar analysis for erecting a
+hypothetic “pencil tower” in West Philadelphia using lidar data from
+Pennsylvania and rayshader.
 
-Let's start by loading some lidar data into R. Here's a link to several PDF files listing instructions on how to load data. We'll start with philly.pdf to get instructions for downloading
+Let’s start by loading some lidar data into R. Here’s a link to several
+PDF files listing instructions on how to load data. We’ll start with
+philly.pdf to get instructions for downloading
 
-Let's walk through downloading a specific dataset:
+Let’s walk through downloading a specific dataset:
 
-Backup: https://www.tylermw.com/data/26849E233974N.zip
+Backup: <https://www.tylermw.com/data/26849E233974N.zip>
 
-Now, let's load some lidar data into R. We'll do this using the `whitebox` package, which has several functions for manipulating and transforming lidar data, among many other useful features. Here, we're going to load our lidar dataset of Penn Park, right by the Schuylkill. 
+Now, let’s load some lidar data into R. We’ll do this using the
+`whitebox` package, which has several functions for manipulating and
+transforming lidar data, among many other useful features. Here, we’re
+going to load our lidar dataset of Penn Park, right by the Schuylkill.
 
-While this runs, let's talk about 
+While this runs, let’s talk
+about
 
-```{r}
+``` r
 # whitebox::wbt_lidar_ransac_planes(path.expand("~/Desktop/musa/26849E233974N.las"), num_iter = 1,
 #                                     output = path.expand("~/Desktop/musa/philly_level.las"))
 # 
 # whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/philly_level.las"),
 #                                  output = path.expand("~/Desktop/musa/phillydem.tif"), minz=0,
 #                                  resolution = 1, exclude_cls = c(3,4,5,7,9,18))
-
 ```
 
-Backup: https://www.tylermw.com/data/phillydem.tif
+Backup: <https://www.tylermw.com/data/phillydem.tif>
 
-
-```{r}
-
+``` r
 LongLatToUTM = function(x,y,zone){
  xy = data.frame(ID = 1:length(x), X = x, Y = y)
  coordinates(xy) = c("X", "Y")
@@ -377,22 +550,15 @@ owin2SP = function(x) {
   z = SpatialPolygons(list(y))
   return(z)
 }
-
 ```
 
-
-```{r}
-
+``` r
 # phillyraster = raster::raster("phillydem.tif")
 # buildingmat = raster_to_matrix(phillyraster)
 # buildingmatsmall = reduce_matrix_size(buildingmat,0.5)
-
 ```
 
-
-
-```{r}
-
+``` r
 # library(lubridate)
 # 
 # #30 minute buffer
@@ -477,8 +643,7 @@ owin2SP = function(x) {
 #   plot_3d(phillydem2,windowsize = c(1000,1000))
 ```
 
-```{r}
-
+``` r
 # whitebox::lidar_remove_outliers("/home/tyler/Downloads/26875E239254N.las", output = "/home/tyler/Downloads/pma.las")
 # 
 # whitebox::lidar_tin_gridding("/home/tyler/Downloads/pma.las", output = "/home/tyler/Downloads/pma.tif", exclude_cls = c(7))
@@ -528,7 +693,7 @@ owin2SP = function(x) {
 # }
 ```
 
-```{r}
+``` r
 # 
 # tiffiles = list.files("~/Desktop/musa/coastal/", pattern = "tif") 
 # loadedrasters = list()
@@ -587,19 +752,17 @@ owin2SP = function(x) {
 # coastalmat2[is.na(coastalmat2)] = 0
 ```
 
-Florida:
-http://dpanther2.ad.fiu.edu/Lidar/lidarNew.php
+Florida: <http://dpanther2.ad.fiu.edu/Lidar/lidarNew.php>
 
 Global elevation data:
-http://opentopo.sdsc.edu/raster?opentopoID=OTSRTM.082015.4326.1
+<http://opentopo.sdsc.edu/raster?opentopoID=OTSRTM.082015.4326.1>
 
 Extreme scenario: 10.7 ft sea level rise, 2100
 
-Issue:
-version `GLIBC_2.27' not found (required by /home/tyler/R/x86_64-pc-linux-gnu-library/3.6/whitebox/WBT/whitebox_tools)
+Issue: version \`GLIBC\_2.27’ not found (required by
+/home/tyler/R/x86\_64-pc-linux-gnu-library/3.6/whitebox/WBT/whitebox\_tools)
 
-```{r miami}
-
+``` r
 # library(xml2)
 # library(sp)
 # library(rgdal)
@@ -668,5 +831,4 @@ version `GLIBC_2.27' not found (required by /home/tyler/R/x86_64-pc-linux-gnu-li
 # render_water(miamireduced, zscale=2.5, waterdepth = 3)
 # render_camera(fov=70)
 # LongLatToUTM(y=c(25.760942, 25.779401),  x=c(-80.144299, -80.123726), zone = 17)
-
 ```
