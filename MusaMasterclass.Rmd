@@ -13,7 +13,7 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE, fig.width = 6, fig.height = 6)
 ```
 
 #UPenn Masterclass: 3D Mapping and Visualization with R and Rayshader
@@ -266,24 +266,73 @@ hobart_mat %>%
   add_shadow(rayshadows, max_darken = 0.5) %>%
   add_shadow(lambshadows, max_darken = 0.7) %>%
   add_shadow(ambientshadows, max_darken = 0) %>%
-  plot_3d(hobart_mat, zscale=10,windowsize=c(600,600))
+  plot_3d(hobart_mat, zscale=10,windowsize=c(1000,1000))
+
+render_snapshot(clear=TRUE)
 
 ```
 
 This opens up an X11 window that displays the 3D plot. Draw to manipulate the plot, and control/ctrl drag to zoom in and out. To close it, we can either close the window itself, or type in `rgl::rgl.close()`.
 
-Just visualizing this on your screen is fun when exploring the data, but we would also like to export our figure to an image file. If you want to take a snapshot of the current view, rayshader provide the `render_snapshot()` function. If you use this without a filename, it will write and display the plot to the current device. With a filename, it will write the image to a PNG file in the local directory.
+Just visualizing this on your screen is fun when exploring the data, but we would also like to export our figure to an image file. If you want to take a snapshot of the current view, rayshader provide the `render_snapshot()` function. If you use this without a filename, it will write and display the plot to the current device. With a filename, it will write the image to a PNG file in the local directory. For variety, let's also change the background/shadow color (arguments `background` and `shadowcolor`), depth of rendered ground/shadow (arguments `soliddepth` and `shadowdepth`), and add a title to the plot.
 
 ```{r}
 
-render_snapshot()
+hobart_mat %>%
+  sphere_shade() %>%
+  add_water(detect_water(hobart_mat), color="lightblue") %>%
+  add_shadow(rayshadows, max_darken = 0.5) %>%
+  add_shadow(lambshadows, max_darken = 0.7) %>%
+  add_shadow(ambientshadows, max_darken = 0) %>%
+  plot_3d(hobart_mat, zscale=10,windowsize=c(1000,1000), 
+          phi = 40, theta = 135, zoom = 0.9, 
+          background = "grey30", shadowcolor = "grey5", 
+          soliddepth = -50, shadowdepth = -100)
+
 render_snapshot(title_text = "River Derwent, Tasmania", 
                 title_font = "Helvetica", 
-                title_color = "darkgreen")
+                title_size = 50,
+                title_color = "grey90")
+
 render_snapshot(filename = "derwent.png")
 
-rgl::rgl.close()
+```
 
+If we want to programmatically change the camera, we can do so with the `render_camera()` function. We can adjust four parameters: `theta`, `phi`, `zoom`, and `fov` (field of view). Changing `theta` changes the angle of the camera around the scene, while changing `phi` changes the angle above the horizon at which the camera is located. Here is a graphic demonstrating this relation:
+
+![Figure X: Demonstration of how ray_shade() raytraces images](images/spherical_coordinates_fixed.png)
+
+`zoom` magnifies the current view (smaller numbers = larger magnification), and `fov` changes the field of view. Higher `fov` values correspond to a more pronounced perspective effect, while `fov = 0` corresponds to a orthographic camera.
+
+Here's different views using the camera:
+
+```{r}
+
+render_camera(theta = 90, phi = 30, zoom = 0.7, fov = 0)
+render_snapshot()
+
+render_camera(theta = 90, phi = 30, zoom = 0.7, fov = 90)
+render_snapshot()
+
+render_camera(theta = 135, phi = 20, zoom = 0.3, fov = 90)
+render_snapshot()
+
+
+```
+
+We can also use some post-processing effects to help guide our viewer through our 3D space. Since there's more information for a viewer to process in a 3D visualization, we need some tools to tell our viewer where to look. The easiest method is directly labeling the areas we'd like them to look at, using the `render_label()` function:
+
+```{r}
+
+render_label()
+
+```
+
+```{r}
+
+render_depth(focus = 0.70, preview_focus = TRUE)
+
+render_depth(focus = 0.7, focallength = 300)
 ```
 
 One of the. Here, we'll use the built-in `montereybay` dataset, which includes both bathymetric and topographic data for Monterey Bay, California. We'll include a transparent water layer by setting `water = TRUE` in `plot_3d()`, and add lines showing the edges of the water by setting `waterlinecolor`.
@@ -292,7 +341,8 @@ One of the. Here, we'll use the built-in `montereybay` dataset, which includes b
 
 montereybay %>%
   sphere_shade() %>%
-  plot_3d(montereybay, theta=-45, water=TRUE, waterlinecolor = "white")
+  plot_3d(montereybay, theta=-45, water=TRUE, waterlinecolor = "white",windowsize = c(1000,1000))
+
 render_snapshot()
 
 ```
@@ -401,20 +451,32 @@ owin2SP = function(x) {
 # 
 # temptime = datetimephillyrise
 # philly_shadows = list()
+# sunanglelist = list()
 # counter = 1
 # while(temptime < datetimephillyset) {
 #   sunangles = suncalc::getSunlightPosition(date = temptime, lat = 39.9526, lon = -75.1652)[4:5]*180/pi
 #   print(temptime)
-#   print(sunangles)
-#   philly_shadows[[counter]] = ray_shade(buildingmatsmall,
-#                                   sunangle = sunangles$azimuth+180, 
-#                                   sunaltitude = sunangles$altitude,
-#                                   lambert = FALSE, zscale=2,
-#                                   multicore = TRUE)
+#   sunanglelist[[counter]] = temptime
+#   # print(sunangles)
+#   # philly_shadows[[counter]] = ray_shade(buildingmatsmall,
+#   #                                 sunangle = sunangles$azimuth+180,
+#   #                                 sunaltitude = sunangles$altitude,
+#   #                                 lambert = FALSE, zscale=2,
+#   #                                 multicore = TRUE)
 #   temptime = temptime + duration("180s")
 #   counter = counter + 1
 # }
 # 
+# for(i in 1:280) {
+#   magick::image_read(glue::glue("phillyshadow{i}.png")) %>%
+#     magick::image_resize("800x800") %>%
+#     magick::image_composite(magick::image_read("overlay.png")) %>%
+#     magick::image_annotate(paste0("University of Pennsylvania, ", as.character(sunanglelist[[i]])), 
+#                        location = paste0("+20+8"),
+#                        size = 30, color = "black", 
+#                        font = "Helvetica") %>%
+#     magick::image_write(glue::glue("smallphilly{i}.png"))
+# }
 # 
 # sphere_shade(buildingmatsmall,colorintensity = 20) -> sphereshaded
 # 

@@ -404,8 +404,12 @@ hobart_mat %>%
   add_shadow(rayshadows, max_darken = 0.5) %>%
   add_shadow(lambshadows, max_darken = 0.7) %>%
   add_shadow(ambientshadows, max_darken = 0) %>%
-  plot_3d(hobart_mat, zscale=10,windowsize=c(600,600))
+  plot_3d(hobart_mat, zscale=10,windowsize=c(1000,1000))
+
+render_snapshot(clear=TRUE)
 ```
+
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 This opens up an X11 window that displays the 3D plot. Draw to
 manipulate the plot, and control/ctrl drag to zoom in and out. To close
@@ -417,27 +421,52 @@ we would also like to export our figure to an image file. If you want to
 take a snapshot of the current view, rayshader provide the
 `render_snapshot()` function. If you use this without a filename, it
 will write and display the plot to the current device. With a filename,
-it will write the image to a PNG file in the local directory.
+it will write the image to a PNG file in the local directory. For
+variety, let’s also change the background/shadow color (arguments
+`background` and `shadowcolor`), depth of rendered ground/shadow
+(arguments `soliddepth` and `shadowdepth`), and add a title to the plot.
 
 ``` r
-render_snapshot()
+hobart_mat %>%
+  sphere_shade() %>%
+  add_water(detect_water(hobart_mat), color="lightblue") %>%
+  add_shadow(rayshadows, max_darken = 0.5) %>%
+  add_shadow(lambshadows, max_darken = 0.7) %>%
+  add_shadow(ambientshadows, max_darken = 0) %>%
+  plot_3d(hobart_mat, zscale=10,windowsize=c(1000,1000), 
+          phi = 40, theta = 135, zoom = 0.9, 
+          background = "grey30", shadowcolor = "grey5", 
+          soliddepth = -50, shadowdepth = -100)
+
+render_snapshot(title_text = "River Derwent, Tasmania", 
+                title_font = "Helvetica", 
+                title_size = 50,
+                title_color = "grey90")
 ```
 
 ![](MusaMasterclass_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
-render_snapshot(title_text = "River Derwent, Tasmania", 
-                title_font = "Helvetica", 
-                title_color = "darkgreen")
+render_snapshot(filename = "derwent.png", clear = TRUE)
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
+G
 
 ``` r
-render_snapshot(filename = "derwent.png")
+hobart_mat %>%
+  sphere_shade(texture = "desert") %>%
+  add_water(detect_water(hobart_mat), color="desert") %>%
+  add_shadow(rayshadows, max_darken = 0.5) %>%
+  add_shadow(lambshadows, max_darken = 0.7) %>%
+  add_shadow(ambientshadows, max_darken = 0) %>%
+  plot_3d(hobart_mat, zscale=10,windowsize=c(1000,1000), 
+          phi = 30, theta = 135, zoom = 0.4,  fov = 70,
+          soliddepth = -50, shadowdepth = -100)
 
-rgl::rgl.close()
+render_depth(focus = 0.65,focallength = 200)
 ```
+
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 One of the. Here, we’ll use the built-in `montereybay` dataset, which
 includes both bathymetric and topographic data for Monterey Bay,
@@ -448,16 +477,18 @@ setting `waterlinecolor`.
 ``` r
 montereybay %>%
   sphere_shade() %>%
-  plot_3d(montereybay, theta=-45, water=TRUE, waterlinecolor = "white")
+  plot_3d(montereybay, theta=-45, water=TRUE, waterlinecolor = "white",windowsize = c(1000,1000))
 ```
 
     ## `montereybay` dataset used with no zscale--setting `zscale=50`.  For a realistic depiction, raise `zscale` to 200.
 
 ``` r
+Sys.sleep(1)
+
 render_snapshot()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 <https://maps.psiee.psu.edu/preview/map.ashx?layer=2021>
 
@@ -567,20 +598,32 @@ owin2SP = function(x) {
 # 
 # temptime = datetimephillyrise
 # philly_shadows = list()
+# sunanglelist = list()
 # counter = 1
 # while(temptime < datetimephillyset) {
 #   sunangles = suncalc::getSunlightPosition(date = temptime, lat = 39.9526, lon = -75.1652)[4:5]*180/pi
 #   print(temptime)
-#   print(sunangles)
-#   philly_shadows[[counter]] = ray_shade(buildingmatsmall,
-#                                   sunangle = sunangles$azimuth+180, 
-#                                   sunaltitude = sunangles$altitude,
-#                                   lambert = FALSE, zscale=2,
-#                                   multicore = TRUE)
+#   sunanglelist[[counter]] = temptime
+#   # print(sunangles)
+#   # philly_shadows[[counter]] = ray_shade(buildingmatsmall,
+#   #                                 sunangle = sunangles$azimuth+180,
+#   #                                 sunaltitude = sunangles$altitude,
+#   #                                 lambert = FALSE, zscale=2,
+#   #                                 multicore = TRUE)
 #   temptime = temptime + duration("180s")
 #   counter = counter + 1
 # }
 # 
+# for(i in 1:280) {
+#   magick::image_read(glue::glue("phillyshadow{i}.png")) %>%
+#     magick::image_resize("800x800") %>%
+#     magick::image_composite(magick::image_read("overlay.png")) %>%
+#     magick::image_annotate(paste0("University of Pennsylvania, ", as.character(sunanglelist[[i]])), 
+#                        location = paste0("+20+8"),
+#                        size = 30, color = "black", 
+#                        font = "Helvetica") %>%
+#     magick::image_write(glue::glue("smallphilly{i}.png"))
+# }
 # 
 # sphere_shade(buildingmatsmall,colorintensity = 20) -> sphereshaded
 # 
