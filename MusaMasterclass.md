@@ -74,11 +74,13 @@ library(sp)
 setwd("~/Desktop/musa/")
 ```
 
-We’re first going to start by demoing how digital elevation models
-(DEMs) have traditionally been displayed. Here, we load in a DEM of the
-\_\_\_\_ river in Hobart, Tasmania. We’ll plot it using both the image
-and plot functions to see how elevation data is traditionally
-displayed–mapping elevation directly to color.
+# Hillshading with Rayshader
+
+We’re going to start by demoing how digital elevation models (DEMs) have
+traditionally been displayed. Here, we load in a DEM of the River
+Derwent in Hobart, Tasmania. We’ll plot it using both the image and plot
+functions to see how elevation data is traditionally displayed–mapping
+elevation directly to color.
 
 Let’s take a raster object and extract a bare R matrix to work with
 rayshader. To convert the data from the raster format to a bare matrix,
@@ -92,6 +94,7 @@ hobart_tif = raster::raster(unzip(loadzip, "dem_01.tif"))
 unlink(loadzip)
 
 hobart_mat = raster_to_matrix(hobart_tif)
+unlink("dem_01.tif")
 
 image(hobart_mat)
 ```
@@ -386,11 +389,13 @@ hobart_mat %>%
 
 ![](MusaMasterclass_files/figure-gfm/ambient_occlusion-3.png)<!-- -->
 
-Now that we know how to perform basic hillshading, we can begin the fun
-part: making 3D maps. In rayshader, we do that simply by swapping out
-`plot_map()` with `plot_3d()`, and adding the heightmap to the function
-call. We don’t want to re-compute the shadows every time we replot the
-landscape, so lets save them to a
+# 3D Mapping with Rayshader
+
+Now that we know how to perform basic hillshading, we can begin the real
+fun part: making 3D maps. In rayshader, we do that simply by swapping
+out `plot_map()` with `plot_3d()`, and adding the heightmap to the
+function call. We don’t want to re-compute the shadows every time we
+replot the landscape, so lets save them to a
 variable.
 
 ``` r
@@ -411,7 +416,7 @@ render_snapshot(clear=TRUE)
 
 ![](MusaMasterclass_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
-This opens up an X11 window that displays the 3D plot. Draw to
+This opens up an `rgl` window that displays the 3D plot. Draw to
 manipulate the plot, and control/ctrl drag to zoom in and out. To close
 it, we can either close the window itself, or type in
 `rgl::rgl.close()`.
@@ -447,26 +452,125 @@ render_snapshot(title_text = "River Derwent, Tasmania",
 ![](MusaMasterclass_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
-render_snapshot(filename = "derwent.png", clear = TRUE)
+render_snapshot(filename = "derwent.png")
+
+#Delete the file
+unlink("derwent.png")
 ```
 
-G
+If we want to programmatically change the camera, we can do so with the
+`render_camera()` function. We can adjust four parameters: `theta`,
+`phi`, `zoom`, and `fov` (field of view). Changing `theta` orbits the
+camera around the scene, while changing `phi` changes the angle above
+the horizon at which the camera is located. Here is a graphic
+demonstrating this relation:
+
+![Figure X: Demonstration of how ray\_shade() raytraces
+images](images/spherical_coordinates_fixed.png)
+
+`zoom` magnifies the current view (smaller numbers = larger
+magnification), and `fov` changes the field of view. Higher `fov` values
+correspond to a more pronounced perspective effect, while `fov = 0`
+corresponds to a orthographic camera.
+
+Here’s different views using the camera:
 
 ``` r
-hobart_mat %>%
-  sphere_shade(texture = "desert") %>%
-  add_water(detect_water(hobart_mat), color="desert") %>%
-  add_shadow(rayshadows, max_darken = 0.5) %>%
-  add_shadow(lambshadows, max_darken = 0.7) %>%
-  add_shadow(ambientshadows, max_darken = 0) %>%
-  plot_3d(hobart_mat, zscale=10,windowsize=c(1000,1000), 
-          phi = 30, theta = 135, zoom = 0.4,  fov = 70,
-          soliddepth = -50, shadowdepth = -100)
-
-render_depth(focus = 0.65,focallength = 200)
+render_camera(theta = 90, phi = 30, zoom = 0.7, fov = 0)
+render_snapshot()
 ```
 
 ![](MusaMasterclass_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+render_camera(theta = 90, phi = 30, zoom = 0.7, fov = 90)
+render_snapshot()
+```
+
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+
+``` r
+render_camera(theta = 120, phi = 20, zoom = 0.3, fov = 90)
+render_snapshot()
+```
+
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
+
+We can also use some post-processing effects to help guide our viewer
+through our visualization’s 3D space. The easiest method of directing
+the viewer’s attention is directly labeling the areas we’d like them to
+look at, using the `render_label()` function. This function takes the
+indices of the matrix coordinate area of interest `x` and `y`, and
+displays a `text` label at altitude
+`z`.
+
+``` r
+render_label(hobart_mat, "River Derwent", textcolor ="white", linecolor="white",
+             x = 450, y = 260, z = 1400, textsize = 2.5, linewidth = 4, zscale = 10)
+render_snapshot()
+```
+
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+``` r
+render_label(hobart_mat, "Jordan River (not that one)", textcolor ="white", linecolor="white",
+             x = 450, y = 140, z = 1400, textsize = 2.5, linewidth = 4, zscale = 10, dashed = TRUE)
+render_snapshot()
+```
+
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
+
+We can replace all existing text with the `clear_previous = TRUE`, or
+clear everything by calling `render_label(clear_previous = TRUE)` with
+no other arguments.
+
+``` r
+render_camera(zoom = 0.9, phi=50, theta=-45,fov=0)
+render_snapshot()
+```
+
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+``` r
+render_label(hobart_mat, "Mount Faulkner", textcolor ="white", linecolor="white",
+             x = 135, y = 130, z = 2500, textsize = 2, linewidth = 3, zscale = 10, clear_previous = TRUE)
+render_snapshot()
+```
+
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->
+
+``` r
+render_label(hobart_mat, "Mount Dromedary", textcolor ="white", linecolor="white",
+             x = 320, y = 390, z = 1000, textsize = 2, linewidth = 3, zscale = 10)
+render_snapshot()
+```
+
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-16-3.png)<!-- -->
+
+``` r
+render_label(clear_previous = TRUE)
+render_snapshot()
+```
+
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-16-4.png)<!-- -->
+
+``` r
+render_depth(focus = 0.70, preview_focus = TRUE)
+```
+
+    ## [1] "Focal range: 0.21476-0.756891"
+
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+
+``` r
+render_depth(focus = 0.7, focallength = 200)
+```
+
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-17-2.png)<!-- -->
+
+``` r
+rgl::rgl.close()
+```
 
 One of the. Here, we’ll use the built-in `montereybay` dataset, which
 includes both bathymetric and topographic data for Monterey Bay,
@@ -483,12 +587,10 @@ montereybay %>%
     ## `montereybay` dataset used with no zscale--setting `zscale=50`.  For a realistic depiction, raise `zscale` to 200.
 
 ``` r
-Sys.sleep(1)
-
 render_snapshot()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 <https://maps.psiee.psu.edu/preview/map.ashx?layer=2021>
 
