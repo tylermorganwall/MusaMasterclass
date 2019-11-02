@@ -21,7 +21,7 @@ Personal website: <https://www.tylermw.com> Rayshader website:
 remotes::install_github("giswqs/whiteboxR")
 ```
 
-    ## Skipping install of 'whitebox' from a github remote, the SHA1 (af5f3c0d) has not changed since last install.
+    ## Skipping install of 'whitebox' from a github remote, the SHA1 (4d87ee7b) has not changed since last install.
     ##   Use `force = TRUE` to force installation
 
 ``` r
@@ -383,7 +383,7 @@ hobart_mat %>%
   add_shadow(ray_shade(hobart_mat, zscale=33, sunaltitude = 5,lambert = FALSE), 
              max_darken = 0.5) %>%
   add_shadow(lamb_shade(hobart_mat,zscale=33, sunaltitude = 5), max_darken = 0.7) %>%
-  add_shadow(ambient_shade(hobart_mat), max_darken = 0) %>%
+  add_shadow(ambient_shade(hobart_mat), max_darken = 0.1) %>%
   plot_map()
 ```
 
@@ -394,21 +394,18 @@ hobart_mat %>%
 Now that we know how to perform basic hillshading, we can begin the real
 fun part: making 3D maps. In rayshader, we do that simply by swapping
 out `plot_map()` with `plot_3d()`, and adding the heightmap to the
-function call. We don’t want to re-compute the shadows every time we
-replot the landscape, so lets save them to a
-variable.
+function call. We don’t want to re-compute the ambient\_shade() call
+every time we replot the landscape, so lets save it to a variable.
 
 ``` r
-rayshadows = ray_shade(hobart_mat, sunaltitude=3, zscale=33, lambert = FALSE)
-lambshadows = lamb_shade(hobart_mat, sunaltitude=3, zscale=33)
 ambientshadows = ambient_shade(hobart_mat)
 
 hobart_mat %>%
   sphere_shade() %>%
   add_water(detect_water(hobart_mat), color="lightblue") %>%
-  add_shadow(rayshadows, max_darken = 0.5) %>%
-  add_shadow(lambshadows, max_darken = 0.7) %>%
-  add_shadow(ambientshadows, max_darken = 0) %>%
+  add_shadow(ray_shade(hobart_mat, sunaltitude=3, zscale=33, lambert = FALSE), max_darken = 0.5) %>%
+  add_shadow(lamb_shade(hobart_mat, sunaltitude=3, zscale=33), max_darken = 0.7) %>%
+  add_shadow(ambientshadows, max_darken = 0.1) %>%
   plot_3d(hobart_mat, zscale=10,windowsize=c(1000,1000))
 
 render_snapshot(clear=TRUE)
@@ -435,8 +432,8 @@ variety, let’s also change the background/shadow color (arguments
 hobart_mat %>%
   sphere_shade() %>%
   add_water(detect_water(hobart_mat), color="lightblue") %>%
-  add_shadow(rayshadows, max_darken = 0.5) %>%
-  add_shadow(lambshadows, max_darken = 0.7) %>%
+  add_shadow(ray_shade(hobart_mat, sunaltitude=3, zscale=33, lambert = FALSE), max_darken = 0.5) %>%
+  add_shadow(lamb_shade(hobart_mat, sunaltitude=3, zscale=33), max_darken = 0.7) %>%
   add_shadow(ambientshadows, max_darken = 0) %>%
   plot_3d(hobart_mat, zscale=10,windowsize=c(1000,1000), 
           phi = 40, theta = 135, zoom = 0.9, 
@@ -555,42 +552,241 @@ render_snapshot()
 ![](MusaMasterclass_files/figure-gfm/unnamed-chunk-16-4.png)<!-- -->
 
 ``` r
-render_depth(focus = 0.70, preview_focus = TRUE)
+rgl::rgl.close()
 ```
 
-    ## [1] "Focal range: 0.21476-0.756891"
+This is not the ony trick up our sleeve, though. Data visualization is
+not the first field to tackle the problem of “How do I direct a viewer’s
+attention in 3D space, projected on a 2D screen?” Cinematographers
+encounter the same issue when they’re filming (except when using small
+aperture sizes or lenses with short focal lengths). Below is a shot of
+Daniel Craig in the movie “Defiance”:
+
+![Figure X: Daniel Craig in
+Defiance](images/good-selective-focus-in-defiance.jpg)
+
+Even though the 3D space this shot is representing is fairly deep (with
+a distinct foreground, middle, and background), we know our attention is
+supposed to be focused on the man in the center. In large part due to
+the use of a shallow depth of field: the blur tells our viewers what
+isn’t important, and what’s in focus informs them where their
+attention should be.
+
+We can apply this same technique in rayshader using the `render_depth()`
+function. This applies a depth of field effect, as if our scene was
+being photographed by a real camera. Let’s focus in on the river in the
+background. The `focus` parameter should be between 0 and 1, where 1 is
+the background and 0 is the foreground. The range of depths will depend
+on our camera position–calling the function will print the range in the
+current view, and you can use `preview_focus = TRUE` to see exactly
+where the focal plane will be positioned.
+
+``` r
+hobart_mat %>%
+  sphere_shade(sunangle = 60) %>%
+  add_water(detect_water(hobart_mat), color="lightblue") %>%
+  add_shadow(ray_shade(hobart_mat, sunangle = 60, sunaltitude=3, zscale=33, lambert = FALSE), max_darken = 0.5) %>%
+  add_shadow(lamb_shade(hobart_mat, sunangle = 60, sunaltitude=3, zscale=33), max_darken = 0.7) %>%
+  add_shadow(ambientshadows, max_darken = 0.1) %>%
+  plot_3d(hobart_mat, zscale=10,windowsize=c(1000,1000))
+
+render_camera(theta = 120, phi = 20, zoom = 0.3, fov = 90)
+render_depth(focus = 0.75, preview_focus = TRUE)
+```
+
+    ## [1] "Focal range: 0.61623-0.977782"
 
 ![](MusaMasterclass_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 ``` r
-render_depth(focus = 0.7, focallength = 200)
+render_depth(focus = 0.75)
 ```
 
 ![](MusaMasterclass_files/figure-gfm/unnamed-chunk-17-2.png)<!-- -->
+
+This effect is rather subtle, so let’s increase the focal length of the
+camera using argument `focallength`. This will make for a shallower
+depth of field (increase the blurring effect in areas far from the focal
+plane). We can also add a `title_*` argument like in
+`render_snapshot()`, and we’ll use the `title_bar_color` argument to
+create a semi-transparent bar around our title.
+
+``` r
+render_depth(focus = 0.75, focallength = 200, title_bar_color = "black",
+             title_text = "The River Derwent, Tasmania", title_color = "white", title_size = 50)
+```
+
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 ``` r
 rgl::rgl.close()
 ```
 
-One of the. Here, we’ll use the built-in `montereybay` dataset, which
-includes both bathymetric and topographic data for Monterey Bay,
-California. We’ll include a transparent water layer by setting `water =
+Rayshader can be used for more than just topographic data
+visualization–we can also easily visualize the intersection between
+land and water. Here, we’ll use the built-in `montereybay` dataset,
+which includes both bathymetric and topographic data for Monterey Bay,
+California. We include a transparent water layer by setting `water =
 TRUE` in `plot_3d()`, and add lines showing the edges of the water by
 setting `waterlinecolor`.
 
 ``` r
 montereybay %>%
   sphere_shade() %>%
-  plot_3d(montereybay, theta=-45, water=TRUE, waterlinecolor = "white",windowsize = c(1000,1000))
+  plot_3d(montereybay, water=TRUE, waterlinecolor = "white",
+          theta=-45, zoom=0.9, windowsize = c(1000,1000))
 ```
 
     ## `montereybay` dataset used with no zscale--setting `zscale=50`.  For a realistic depiction, raise `zscale` to 200.
 
 ``` r
-render_snapshot()
+render_snapshot(title_text = "Monterey Bay, California", 
+                title_color = "white", title_bar_color = "black")
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+
+By default, `plot_3d()` sets the water level at 0 (sea level), but we
+can change this, either by adjusting `waterdepth` in our call to
+`plot_3d()`, or by calling the `render_water()` function after the fact.
+Here we make the water slightly less transparent with the `wateralpha`
+argument (`wateralpha = 1` is opaque, `wateralpha = 0` is transparent).
+
+``` r
+render_water(montereybay, zscale=50, waterdepth = -100, 
+             waterlinecolor = "white", wateralpha=0.7)
+render_snapshot(title_text = "Monterey Bay, California (water level: -100 meters)", 
+                title_color = "white", title_bar_color = "black")
+```
+
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
+``` r
+render_water(montereybay, zscale=50, waterdepth = 30, 
+             waterlinecolor = "white", wateralpha=0.87)
+render_snapshot(title_text = "Monterey Bay, California (water level: 30 meters)", 
+                title_color = "white", title_bar_color = "black")
+```
+
+![](MusaMasterclass_files/figure-gfm/unnamed-chunk-20-2.png)<!-- -->
+
+``` r
+rgl::rgl.close()
+```
+
+Taking snapshots of our map is useful, but a static visualizations isn’t
+the ideal form to represent our 3D data. For the viewer, the depth
+variable has to be inferred from context, which can be ambiguous and
+easily misinterpreted. A far better form for our visualization is a
+movie/animation–we can guide our viewers on a 3D tour of our data, which
+can resolve many ambiguities. Rayshader makes this easy with the
+`render_movie()` function, which creates a movie (mp4 file) which can
+easily be shared on social media. You can add titles and all of the same
+arguments you can to `render_snapshot()`.
+
+By default, `render_movie()` has two animations built in: a basic orbit
+`type = "orbit"`, an oscillating animation `type = "oscillate"`, and a
+zoom-in animation `type = "zoom"`. The `frames` argument is the number
+of frames, while the `fps` is the frames per second. The total length of
+the video is frames/fps. Generally, you shouldn’t change from either 30
+or 60 frames per second if you want to share your videos on social
+media. You also shouldn’t make the camera move too fast or spin too
+quickly–fast camera movements can cause nausea.
+
+``` r
+montereybay %>%
+  sphere_shade() %>%
+  plot_3d(montereybay, water=TRUE, waterlinecolor = "white",
+          theta=-45, zoom=0.9, windowsize = c(600,600))
+```
+
+    ## `montereybay` dataset used with no zscale--setting `zscale=50`.  For a realistic depiction, raise `zscale` to 200.
+
+``` r
+#Orbit will start with current setting of phi and theta
+render_movie(filename = "montbay.mp4", title_text = 'render_movie(type = "orbit")', 
+             phi=30 , theta = -45)
+```
+
+    ## [1] "montbay.mp4"
+
+``` r
+render_movie(filename = "montbayosc.mp4", phi=30 , theta = -90, type = "oscillate",
+             title_text = 'render_movie(type = "oscillate")', title_color="black")
+```
+
+    ## [1] "montbayosc.mp4"
+
+``` r
+unlink("montbay.mp4")
+unlink("montbayosc.mp4")
+```
+
+You can also set `type = "custom"` and pass in a vector of camera values
+to the `phi`, `theta`, `zoom`, and `fov` arguments, and each value will
+be treated as a single frame in our animation. Here I’ve also provided
+an “easing” function that smoothly transitions between two values, so we
+can zoom in and out
+nicely.
+
+``` r
+ease_function = function(beginning, end, steepness = 1, length.out = 180) {
+  single = (end) + (beginning - end) * 1/(1 + exp(seq(-10, 10, length.out = length.out)/(1/steepness)))
+  single
+}
+
+zoom_values = c(ease_function(1,0.3), ease_function(0.3,1))
+
+render_movie(filename = "montbaycustom.mp4", type = "custom",
+             phi=30 + 15 * sin(1:360 * pi /180), theta = -45 - 1:360, zoom=zoom_values)
+```
+
+    ## [1] "montbaycustom.mp4"
+
+``` r
+rgl::rgl.close()
+
+unlink("montbaycustom.mp4")
+```
+
+If you want to do something more advanced, like vary the water depth
+between each frame or call `render_depth()` to create a depth of field
+effect in your animation, you’ll need to generate the movie manually in
+a `for` loop. Luckily, this is fairly simple using the `av` package.
+Let’s vary the water level from the most recent ice age minimum of
+-130 meters to the current sea level. We use the `av` package to combine
+them into a movie.
+
+``` r
+montereybay %>%
+  sphere_shade(texture = "desert") %>%
+  plot_3d(montereybay, windowsize = c(600,600), 
+          shadowcolor = "#222244", background = "lightblue")
+```
+
+    ## `montereybay` dataset used with no zscale--setting `zscale=50`.  For a realistic depiction, raise `zscale` to 200.
+
+``` r
+render_camera(theta=-90, fov=70,phi=30,zoom=0.8)
+Sys.sleep(1)
+
+for(i in 1:60) {
+  render_water(montereybay, zscale=50, waterdepth = -60 - 60 *cos(i*pi*6/180), 
+               watercolor="#3333bb",waterlinecolor="white", waterlinealpha = 0.5)
+  render_snapshot(filename = glue::glue("iceage{i}.png"), title_size = 30, instant_capture = TRUE,
+                  title_text = glue::glue("Sea level: {round(-60 - 60 *cos(i*pi*6/180),1)} meters"))
+}
+
+av::av_encode_video(glue::glue("iceage{1:60}.png"), output = "custom_movie.mp4", 
+                    framerate = 30)
+```
+
+    ## [1] "custom_movie.mp4"
+
+``` r
+unlink(glue::glue("iceage{1:60}.png"))
+unlink("custom_movie.mp4")
+```
 
 <https://maps.psiee.psu.edu/preview/map.ashx?layer=2021>
 
