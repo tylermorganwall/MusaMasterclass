@@ -99,7 +99,7 @@ unlink("dem_01.tif")
 image(hobart_mat)
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
 
 The `image()` function orients data differently than it is in
 reality–the image is flipped vertically. Let’s use rayshader’s
@@ -113,7 +113,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
 
 Where in nature does color map to elevation? Usually, you get this kind
 of mapping on large scale topographic features, such as a tree line on a
@@ -169,7 +169,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
 
 We note right away that it’s much more apparent in this image that there
 is a body of water (the River Derwent) in the middle of this image,
@@ -198,7 +198,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
 
 If increase the minimum required area to be classified as water, we will
 fix the flat areas at the top of the map that are being erroneously
@@ -211,7 +211,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-6-1.png" style="display: block; margin: auto;" />
 
 The default is to look for flat regions 1/400th the area of the matrix.
 There’s nothing special about this number, but it’s a default that
@@ -226,7 +226,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
 
 Rayshader’s name comes the method it uses to calculate hillshades:
 raytracing, which realisticly simulates how light travels across the
@@ -242,7 +242,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-8-1.png" style="display: block; margin: auto;" />
 
 To shade surfaces using raytracing, rayshader draws rays originating
 from each point towards a light source, specified using the `sunangle`
@@ -270,7 +270,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
 
 We can combine all these together to make our final 2D map:
 
@@ -283,7 +283,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
 
 We can adjust the highlight/sun direction using the `sunangle` argument
 in both the `sphere_shade()` function and the `ray_shade()` function.
@@ -303,7 +303,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-11-1.png" style="display: block; margin: auto;" />
 
 ``` r
 #45 degrees
@@ -317,7 +317,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-11-2.png" style="display: block; margin: auto;" />
 
 ``` r
 #135 degrees
@@ -331,7 +331,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-11-3.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-11-3.png" style="display: block; margin: auto;" />
 
 ``` r
 #225 degrees
@@ -345,7 +345,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-11-4.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-11-4.png" style="display: block; margin: auto;" />
 
 We can also add the effect of ambient occlusion, which in cartography is
 sometimes called the “sky view factor.” When light travels through the
@@ -362,7 +362,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-![](MusaMasterclass_files/figure-gfm/ambient_occlusion-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/ambient_occlusion-1.png" style="display: block; margin: auto;" />
 
 ``` r
 hobart_mat %>%
@@ -374,7 +374,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-![](MusaMasterclass_files/figure-gfm/ambient_occlusion-2.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/ambient_occlusion-2.png" style="display: block; margin: auto;" />
 
 ``` r
 hobart_mat %>%
@@ -387,7 +387,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-![](MusaMasterclass_files/figure-gfm/ambient_occlusion-3.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/ambient_occlusion-3.png" style="display: block; margin: auto;" />
 
 # 3D Mapping with Rayshader
 
@@ -411,7 +411,7 @@ hobart_mat %>%
 render_snapshot(clear=TRUE)
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-12-1.png" style="display: block; margin: auto;" />
 
 This opens up an `rgl` window that displays the 3D plot. Draw to
 manipulate the plot, and control/ctrl drag to zoom in and out. To close
@@ -446,7 +446,7 @@ render_snapshot(title_text = "River Derwent, Tasmania",
                 title_color = "grey90")
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-13-1.png" style="display: block; margin: auto;" />
 
 ``` r
 render_snapshot(filename = "derwent.png")
@@ -477,21 +477,21 @@ render_camera(theta = 90, phi = 30, zoom = 0.7, fov = 0)
 render_snapshot()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-14-1.png" style="display: block; margin: auto;" />
 
 ``` r
 render_camera(theta = 90, phi = 30, zoom = 0.7, fov = 90)
 render_snapshot()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-14-2.png" style="display: block; margin: auto;" />
 
 ``` r
 render_camera(theta = 120, phi = 20, zoom = 0.3, fov = 90)
 render_snapshot()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-14-3.png" style="display: block; margin: auto;" />
 
 We can also use some post-processing effects to help guide our viewer
 through our visualization’s 3D space. The easiest method of directing
@@ -507,7 +507,7 @@ render_label(hobart_mat, "River Derwent", textcolor ="white", linecolor="white",
 render_snapshot()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-15-1.png" style="display: block; margin: auto;" />
 
 ``` r
 render_label(hobart_mat, "Jordan River (not that one)", textcolor ="white", linecolor="white",
@@ -515,7 +515,7 @@ render_label(hobart_mat, "Jordan River (not that one)", textcolor ="white", line
 render_snapshot()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-15-2.png" style="display: block; margin: auto;" />
 
 We can replace all existing text with the `clear_previous = TRUE`, or
 clear everything by calling `render_label(clear_previous = TRUE)` with
@@ -526,7 +526,7 @@ render_camera(zoom = 0.9, phi=50, theta=-45,fov=0)
 render_snapshot()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-16-1.png" style="display: block; margin: auto;" />
 
 ``` r
 render_label(hobart_mat, "Mount Faulkner", textcolor ="white", linecolor="white",
@@ -534,7 +534,7 @@ render_label(hobart_mat, "Mount Faulkner", textcolor ="white", linecolor="white"
 render_snapshot()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-16-2.png" style="display: block; margin: auto;" />
 
 ``` r
 render_label(hobart_mat, "Mount Dromedary", textcolor ="white", linecolor="white",
@@ -542,14 +542,14 @@ render_label(hobart_mat, "Mount Dromedary", textcolor ="white", linecolor="white
 render_snapshot()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-16-3.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-16-3.png" style="display: block; margin: auto;" />
 
 ``` r
 render_label(clear_previous = TRUE)
 render_snapshot()
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-16-4.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-16-4.png" style="display: block; margin: auto;" />
 
 ``` r
 rgl::rgl.close()
@@ -596,13 +596,13 @@ render_depth(focus = 0.75, preview_focus = TRUE)
 
     ## [1] "Focal range: 0.61623-0.977782"
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-17-1.png" style="display: block; margin: auto;" />
 
 ``` r
 render_depth(focus = 0.75)
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-17-2.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-17-2.png" style="display: block; margin: auto;" />
 
 This effect is rather subtle, so let’s increase the focal length of the
 camera using argument `focallength`. This will make for a shallower
@@ -616,7 +616,7 @@ render_depth(focus = 0.75, focallength = 200, title_bar_color = "black",
              title_text = "The River Derwent, Tasmania", title_color = "white", title_size = 50)
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-18-1.png" style="display: block; margin: auto;" />
 
 ``` r
 rgl::rgl.close()
@@ -644,7 +644,7 @@ render_snapshot(title_text = "Monterey Bay, California",
                 title_color = "white", title_bar_color = "black")
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-19-1.png" style="display: block; margin: auto;" />
 
 By default, `plot_3d()` sets the water level at 0 (sea level), but we
 can change this, either by adjusting `waterdepth` in our call to
@@ -659,7 +659,7 @@ render_snapshot(title_text = "Monterey Bay, California (water level: -100 meters
                 title_color = "white", title_bar_color = "black")
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-20-1.png" style="display: block; margin: auto;" />
 
 ``` r
 render_water(montereybay, zscale=50, waterdepth = 30, 
@@ -668,7 +668,7 @@ render_snapshot(title_text = "Monterey Bay, California (water level: 30 meters)"
                 title_color = "white", title_bar_color = "black")
 ```
 
-![](MusaMasterclass_files/figure-gfm/unnamed-chunk-20-2.png)<!-- -->
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-20-2.png" style="display: block; margin: auto;" />
 
 ``` r
 rgl::rgl.close()
