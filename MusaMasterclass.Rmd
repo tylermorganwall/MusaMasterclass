@@ -21,10 +21,12 @@ knitr::opts_chunk$set(echo = TRUE, cache = TRUE, fig.width = 7, fig.height = 7, 
 Tyler Morgan-Wall (@tylermorganwall), Institute for Defense Analyses
 
 Personal website: https://www.tylermw.com
+
 Rayshader website: https://www.rayshader.com
+
 Github: https://www.github.com/tylermorganwall
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message=FALSE}
 # install.packages("whitebox", repos="http://R-Forge.R-project.org")
 remotes::install_github("giswqs/whiteboxR")
 whitebox::wbt_init()
@@ -47,7 +49,7 @@ We're going to start by demoing how digital elevation models (DEMs) have traditi
 
 Let's take a raster object and extract a bare R matrix to work with rayshader. To convert the data from the raster format to a bare matrix, we will use the rayshader function `raster_to_matrix()`.  We will first visualize the data with the base R `image()` function.
 
-```{r}
+```{r fig.width = 5, fig.height = 5}
 
 loadzip = tempfile() 
 download.file("https://tylermw.com/data/dem_01.tif.zip", loadzip)
@@ -63,7 +65,7 @@ image(hobart_mat)
 
 The `image()` function orients data differently than it is in reality--the image is flipped vertically. Let's use rayshader's `height_shade()` function, which performs the same mapping but orients the resulting map correctly. Here, the default uses `terrain.colors()` instead of the yellow-to-red mapping.
 
-```{r}
+```{r fig.width = 5, fig.height = 5}
 
 hobart_mat %>%
   height_shade() %>%
@@ -91,7 +93,7 @@ Rather than color by elevation, let's try coloring the surface by the direction 
 
 We'll take this and plug it into the `sphere_shade()` function, which performs this mapping of surface direction and slope to color.
 
-```{r}
+```{r fig.width = 5, fig.height = 5}
 
 #Example of data stored in hobart_mat object:
 hobart_mat[1:10,1:10]
@@ -106,7 +108,7 @@ We note right away that it's much more apparent in this image that there is a bo
 
 In fact, rayshader includes two functions, `detect_water()` and `add_water()`, that allow you to detect and add bodies of water directly to the hillshade via the elevation data. This works by looking for large, relatively flat, connected regions in a DEM. Usually, large extremely flat areas are water, but occasionally these functions can result in false positives. `detect_water()` provides the parameters `min_area` and `cutoff` in `detect_water()` so the user can try to . `min_area` specifies the minimum number of connected flat points that constitute a body of water. `cutoff` determines how vertical a surface as to be to be defined as flat: `cutoff = 1.0` only accepts areas pointing straight up as flat, while `cutoff = 0.99` allows for areas that are slightly less than flat to be classified as water. The default is `cutoff = 0.999`.
 
-```{r}
+```{r fig.width = 5, fig.height = 5}
 
 hobart_mat %>%
   sphere_shade() %>%
@@ -117,7 +119,7 @@ hobart_mat %>%
 
 If increase the minimum required area to be classified as water, we will fix the flat areas at the top of the map that are being erroneously catagorized as water.
 
-```{r}
+```{r fig.width = 5, fig.height = 5}
 
 hobart_mat %>%
   sphere_shade() %>%
@@ -128,7 +130,7 @@ hobart_mat %>%
 
 The default is to look for flat regions 1/400th the area of the matrix. There's nothing special about this number, but it's a default that tended to work fairly well for several datasets I tested it on, but it's a parameter you can adjust to suit your dataset. Here we'll also use the default water color.
 
-```{r}
+```{r fig.width = 5, fig.height = 5}
 
 hobart_mat %>%
   sphere_shade() %>%
@@ -137,9 +139,34 @@ hobart_mat %>%
 
 ```
 
+Both `sphere_shade()` and `add_water()` come with several built-in palettes, and you can create your own with the `create_texture()` function. Here's the built-in textures (top is highlight color, and all can be specified):
+
+![Figure X: The various built-in textures in `sphere_shade()`](images/fulltexture.png)
+
+And here's what a sampling of those textures look like (check the documentation for more):
+
+```{r fig.width = 5, fig.height = 5}
+
+hobart_mat %>%
+  sphere_shade(texture = "desert") %>%
+  add_water(detect_water(hobart_mat), color = "desert") %>%
+  plot_map()
+
+hobart_mat %>%
+  sphere_shade(texture = "imhof4") %>%
+  add_water(detect_water(hobart_mat), color = "imhof4") %>%
+  plot_map()
+
+hobart_mat %>%
+  sphere_shade(texture = "bw") %>%
+  add_water(detect_water(hobart_mat), color = "unicorn") %>%
+  plot_map()
+
+```
+
 Rayshader's name comes the method it uses to calculate hillshades: raytracing, which realisticly simulates how light travels across the elevation model. Most traditional methods of hillshading only use the local angle that the surface makes with the light, and do not take into account areas that actually cast a shadow. This basic type of hillshading is sometimes referred to as "lambertian", and is implemented in the function `lamb_shade()`.
 
-```{r}
+```{r fig.width = 5, fig.height = 5}
 
 hobart_mat %>%
   lamb_shade(zscale=33) %>%
@@ -147,7 +174,7 @@ hobart_mat %>%
 
 ```
 
-To shade surfaces using raytracing, rayshader draws rays originating from each point towards a light source, specified using the `sunangle` and `anglebreaks` argument. The light by default has a fixed angular width the size of the sun, but the distribution can also be set in the argument `anglebreaks`. Here are two gifs showing how rayshader calculates shadows with `ray_shade`:
+To shade surfaces using raytracing, rayshader draws rays originating from each point towards a light source, specified using the `sunangle` and `sunaltitude` argument. The light by default has a fixed angular width the size of the sun, but the distribution can also be set in the argument `anglebreaks`. Here are two gifs showing how rayshader calculates shadows with `ray_shade`:
 
 ![Figure X: Demonstration of how ray_shade() raytraces images](images/ray.gif)
 
@@ -155,7 +182,7 @@ To shade surfaces using raytracing, rayshader draws rays originating from each p
 
 Let's add a layer of shadows to this map, using the `add_shadow()` and `ray_shade()` functions. We layer our shadows to our `sphere_shade()` base color layer.
 
-```{r}
+```{r fig.width = 5, fig.height = 5}
 
 hobart_mat %>%
   lamb_shade(zscale=33) %>%
@@ -166,7 +193,7 @@ hobart_mat %>%
 
 We can combine all these together to make our final 2D map:
 
-```{r}
+```{r fig.width = 5, fig.height = 5}
 
 hobart_mat %>%
   sphere_shade() %>%
@@ -182,7 +209,7 @@ We can adjust the highlight/sun direction using the `sunangle` argument in both 
 We'll start witht the default angle: 315 degrees, or the light from the Northwest. One question you might ask yourself:
 
 
-```{r}
+```{r fig.width = 5, fig.height = 5}
 #Default angle: 315 degrees.
 
 hobart_mat %>%
@@ -229,7 +256,7 @@ We can also add the effect of ambient occlusion, which in cartography is sometim
 
 Let's calculate the ambient occlusion shadow layer for the Hobart data, and layer it onto the rest of the map.
 
-```{r ambient_occlusion}
+```{r ambient_occlusion, fig.width = 5, fig.height = 5}
 
 hobart_mat %>%
   ambient_shade() %>%
@@ -376,7 +403,8 @@ hobart_mat %>%
   add_shadow(ray_shade(hobart_mat, sunangle = 60, sunaltitude=3, zscale=33, lambert = FALSE), max_darken = 0.5) %>%
   add_shadow(lamb_shade(hobart_mat, sunangle = 60, sunaltitude=3, zscale=33), max_darken = 0.7) %>%
   add_shadow(ambientshadows, max_darken = 0.1) %>%
-  plot_3d(hobart_mat, zscale=10,windowsize=c(1000,1000))
+  plot_3d(hobart_mat, zscale=10,windowsize=c(1000,1000), 
+          background = "#edfffc", shadowcolor = "#273633")
 
 render_camera(theta = 120, phi = 20, zoom = 0.3, fov = 90)
 render_depth(focus = 0.75, preview_focus = TRUE)
@@ -422,6 +450,50 @@ render_snapshot(title_text = "Monterey Bay, California (water level: 30 meters)"
                 title_color = "white", title_bar_color = "black")
 
 rgl::rgl.close()
+```
+
+Although our underlying matrix data is rectangular, we aren't limited to rectangular 3D plots. Any entry in the matrix that has a value of `NA` will be sliced out of the matrix. Here, we slice out just the bathymetric from the `montereybay` dataset. We still use the full matrix to calculate the hillshade and shadows, but pass the sliced elevation matrix to `plot_3d()`:
+
+```{r}
+
+mont_bathy = montereybay
+mont_bathy[mont_bathy >= 0] = NA
+
+montereybay %>%
+  sphere_shade() %>%
+  add_shadow(ray_shade(mont_bathy,zscale=50, sunaltitude = 15, lambert = FALSE),0.5) %>%
+  plot_3d(mont_bathy, water=TRUE, waterlinecolor = "white",
+          theta=-45, zoom=0.9, windowsize = c(1000,1000))
+
+render_snapshot(title_text = "Monterey Bay Canyon", title_color = "white", title_bar_color = "black")
+rgl::rgl.clear()
+
+```
+
+Alternatively, if we just want a more interesting base shape and we don't mind losing some data, we can have rayshader carve your dataset into either a hexagon or a circle by specifying the `baseshape` argument in `plot_3d()` (I also throw in some new background colors and shadow colors because variety is the spice of life):
+
+```{r}
+
+montereybay %>%
+  sphere_shade() %>%
+  add_shadow(ray_shade(montereybay,zscale=50,sunaltitude=15,lambert = FALSE),0.5) %>%
+  plot_3d(montereybay, water=TRUE, waterlinecolor = "white", baseshape = "hex",
+          theta=-45, zoom=0.7, windowsize = c(1000,1000), 
+          shadowcolor = "#4e3b54", background = "#f7e8fc")
+
+render_snapshot(title_text = "Monterey Bay Canyon, Hexagon", 
+                title_color = "white", title_bar_color = "black", clear = TRUE)
+
+montereybay %>%
+  sphere_shade() %>%
+  add_shadow(ray_shade(montereybay,zscale=50,sunaltitude = 15,lambert = FALSE),0.5) %>%
+  plot_3d(montereybay, water=TRUE, waterlinecolor = "white", baseshape = "circle",
+          theta=-45, zoom=0.7, windowsize = c(1000,1000),
+          shadowcolor = "#4f3f3a", background = "#ffeae3")
+
+render_snapshot(title_text = "Monterey Bay Canyon, Circle", 
+                title_color = "white", title_bar_color = "black", clear = TRUE)
+
 ```
 
 Taking snapshots of our map is useful, but a static visualizations isn't the ideal form to represent our 3D data. For the viewer, the depth variable has to be inferred from context, which can be ambiguous and easily misinterpreted. A far better form for our visualization is a movie/animation--we can guide our viewers on a 3D tour of our data, which can resolve many ambiguities. Rayshader makes this easy with the `render_movie()` function, which creates a movie (mp4 file) which can easily be shared on social media. You can add titles and all of the same arguments you can to `render_snapshot()`.
@@ -506,32 +578,60 @@ Now that we know how to use rayshader, let's use it to create and visualize some
 
 https://www.nytimes.com/interactive/2016/12/21/upshot/Mapping-the-Shadows-of-New-York-City.html
 
-They took three days in the year and mapped out how much each spot in the city spent in shadow: the winter solstice (December 21st), the summer solstice (June 21st), and the autumnal equinox (Sept 22nd). They worked with researchers at the Tandon school of Engineering at NYU to develop a raytracer to perform these calculations. This type of analysis is particularly timely with the explosion of so-called "pencil towers" in Manhattan--extremely tall, skinny skyscrapers lining Central Park. When
+They took three days in the year and mapped out how much each spot in the city spent in shadow: the winter solstice (December 21st), the summer solstice (June 21st), and the autumnal equinox (Sept 22nd). They worked with researchers at the Tandon school of Engineering at NYU to develop a raytracer to perform these calculations. This type of analysis is particularly timely with the explosion of so-called "pencil towers" in Manhattan--extremely tall, skinny skyscrapers lining Central Park and catering to the super wealthy. The question: How are these towers affecting 
 
 We are going to perform and visualize a similar analysis for erecting a hypothetic "pencil tower" in West Philadelphia using lidar data from Pennsylvania and rayshader.
 
-Let's start by loading some lidar data into R. Here's a link to several PDF files listing instructions on how to load data. We'll start with philly.pdf to get instructions for downloading
+Let's start by loading some lidar data into R. Here's a link to several PDF files listing instructions on how to load data. We'll start with philly.pdf to get instructions for downloading our lidar data.
 
 Let's walk through downloading a specific dataset:
 
 Backup: https://www.tylermw.com/data/26849E233974N.zip
 
-Now, let's load some lidar data into R. We'll do this using the `whitebox` package, which has several functions for manipulating and transforming lidar data, among many other useful features. Here, we're going to load our lidar dataset of Penn Park, right by the Schuylkill. 
-
-While this runs, let's talk about 
+Now, let's load some lidar data into R. We'll do this using the `whitebox` package, which has several functions for manipulating and transforming lidar data, among many other useful features. Here, we're going to load our lidar dataset of Penn Park, right by the Schuylkill. Many lidar datasets are far too large to easily visualize, and are often noisy--we are going to use `whitebox` to clean the data, and turn it into a simple elevation model that includes buildings.
 
 ```{r}
-# whitebox::wbt_lidar_ransac_planes(path.expand("~/Desktop/musa/26849E233974N.las"), num_iter = 1,
-#                                     output = path.expand("~/Desktop/musa/philly_level.las"))
-# 
-# whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/philly_level.las"),
-#                                  output = path.expand("~/Desktop/musa/phillydem.tif"), minz=0,
-#                                  resolution = 1, exclude_cls = c(3,4,5,7,9,18))
+
+whitebox::wbt_lidar_ransac_planes(path.expand("~/Desktop/musa/26849E233974N.las"), num_iter = 1,
+                                    output = path.expand("~/Desktop/musa/philly_level.las"))
+
+whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/philly_level.las"),
+                                 output = path.expand("~/Desktop/musa/phillydem.tif"), minz=0,
+                                 resolution = 1, exclude_cls = c(3,4,5,7,9,18))
 
 ```
 
+
+While this runs, let's talk about general limitations you'll encounter when dealing with lidar data. If you notice, you'll see `whitebox` actually isn't loading any data into your environment, and for good reason. R is memory hungry, and processing a full lidar dataset would be difficult on most standard machines. The `whitebox` package operates on files ourside of R, and outputs a processed file when it's done. Once the data is transformed from a collection of lidar measurements to a regular grid of elevation values, we can load it into R and get to work.
+
+Here's a backup in case whitebox doesn't work for you:
+
 Backup: https://www.tylermw.com/data/phillydem.tif
 
+Now, let's load the data into R. Rayshader includes a function, `raster_to_matrix()`, that will automatically convert rasters into the matrix for rayshader expects.
+
+```{r}
+
+phillyraster = raster::raster("phillydem.tif")
+building_mat = raster_to_matrix(phillyraster)
+
+```
+
+A 2640x2640 matrix is easily processed in R, but it's not ideal here for two reasons:
+
+1) Large matrices like this take a while to display in 3D.
+2) We're time limited, and the resolution isn't important to the analysis.
+
+So we'll use another rayshader function, `reduce_matrix_size()`, to cleanly reduce the resolution of the matrix. Here, we're reducing it by half. 
+
+```{r}
+
+building_mat_small = reduce_matrix_size(building_mat,0.5)
+dim(building_mat_small)
+
+```
+
+Now, we're going to load in helper functions. 
 
 ```{r}
 
@@ -573,16 +673,6 @@ owin2SP = function(x) {
 }
 
 ```
-
-
-```{r}
-
-# phillyraster = raster::raster("phillydem.tif")
-# buildingmat = raster_to_matrix(phillyraster)
-# buildingmatsmall = reduce_matrix_size(buildingmat,0.5)
-
-```
-
 
 
 ```{r}

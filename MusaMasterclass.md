@@ -12,62 +12,22 @@
 
 Tyler Morgan-Wall (@tylermorganwall), Institute for Defense Analyses
 
-Personal website: <https://www.tylermw.com> Rayshader website:
-<https://www.rayshader.com> Github:
-<https://www.github.com/tylermorganwall>
+Personal website: <https://www.tylermw.com>
+
+Rayshader website: <https://www.rayshader.com>
+
+Github: <https://www.github.com/tylermorganwall>
 
 ``` r
 # install.packages("whitebox", repos="http://R-Forge.R-project.org")
 remotes::install_github("giswqs/whiteboxR")
-```
-
-    ## Skipping install of 'whitebox' from a github remote, the SHA1 (4d87ee7b) has not changed since last install.
-    ##   Use `force = TRUE` to force installation
-
-``` r
 whitebox::wbt_init()
 library(ggplot2)
 library(whitebox)
 library(rayshader)
 library(geoviz)
 library(raster)
-```
-
-    ## Loading required package: sp
-
-``` r
 library(spatstat)
-```
-
-    ## Loading required package: spatstat.data
-
-    ## Loading required package: nlme
-
-    ## 
-    ## Attaching package: 'nlme'
-
-    ## The following object is masked from 'package:raster':
-    ## 
-    ##     getData
-
-    ## Loading required package: rpart
-
-    ## Registered S3 method overwritten by 'spatstat':
-    ##   method      from  
-    ##   plot.imlist imager
-
-    ## 
-    ## spatstat 1.61-0       (nickname: 'Puppy zoomies') 
-    ## For an introduction to spatstat, type 'beginner'
-
-    ## 
-    ## Attaching package: 'spatstat'
-
-    ## The following objects are masked from 'package:raster':
-    ## 
-    ##     area, rotate, shift
-
-``` r
 library(spatstat.utils)
 library(suncalc)
 library(sp)
@@ -228,6 +188,44 @@ hobart_mat %>%
 
 <img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
 
+Both `sphere_shade()` and `add_water()` come with several built-in
+palettes, and you can create your own with the `create_texture()`
+function. Here’s the built-in textures (top is highlight color, and all
+can be specified):
+
+![Figure X: The various built-in textures in
+`sphere_shade()`](images/fulltexture.png)
+
+And here’s what a sampling of those textures look like (check the
+documentation for more):
+
+``` r
+hobart_mat %>%
+  sphere_shade(texture = "desert") %>%
+  add_water(detect_water(hobart_mat), color = "desert") %>%
+  plot_map()
+```
+
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-8-1.png" style="display: block; margin: auto;" />
+
+``` r
+hobart_mat %>%
+  sphere_shade(texture = "imhof4") %>%
+  add_water(detect_water(hobart_mat), color = "imhof4") %>%
+  plot_map()
+```
+
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-8-2.png" style="display: block; margin: auto;" />
+
+``` r
+hobart_mat %>%
+  sphere_shade(texture = "bw") %>%
+  add_water(detect_water(hobart_mat), color = "unicorn") %>%
+  plot_map()
+```
+
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-8-3.png" style="display: block; margin: auto;" />
+
 Rayshader’s name comes the method it uses to calculate hillshades:
 raytracing, which realisticly simulates how light travels across the
 elevation model. Most traditional methods of hillshading only use the
@@ -242,7 +240,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-8-1.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
 
 To shade surfaces using raytracing, rayshader draws rays originating
 from each point towards a light source, specified using the `sunangle`
@@ -270,7 +268,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
 
 We can combine all these together to make our final 2D map:
 
@@ -283,7 +281,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-11-1.png" style="display: block; margin: auto;" />
 
 We can adjust the highlight/sun direction using the `sunangle` argument
 in both the `sphere_shade()` function and the `ray_shade()` function.
@@ -303,7 +301,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-11-1.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-12-1.png" style="display: block; margin: auto;" />
 
 ``` r
 #45 degrees
@@ -317,7 +315,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-11-2.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-12-2.png" style="display: block; margin: auto;" />
 
 ``` r
 #135 degrees
@@ -331,7 +329,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-11-3.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-12-3.png" style="display: block; margin: auto;" />
 
 ``` r
 #225 degrees
@@ -345,7 +343,7 @@ hobart_mat %>%
   plot_map()
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-11-4.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-12-4.png" style="display: block; margin: auto;" />
 
 We can also add the effect of ambient occlusion, which in cartography is
 sometimes called the “sky view factor.” When light travels through the
@@ -411,7 +409,7 @@ hobart_mat %>%
 render_snapshot(clear=TRUE)
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-12-1.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-13-1.png" style="display: block; margin: auto;" />
 
 This opens up an `rgl` window that displays the 3D plot. Draw to
 manipulate the plot, and control/ctrl drag to zoom in and out. To close
@@ -446,7 +444,7 @@ render_snapshot(title_text = "River Derwent, Tasmania",
                 title_color = "grey90")
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-13-1.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-14-1.png" style="display: block; margin: auto;" />
 
 ``` r
 render_snapshot(filename = "derwent.png")
@@ -477,21 +475,21 @@ render_camera(theta = 90, phi = 30, zoom = 0.7, fov = 0)
 render_snapshot()
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-14-1.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-15-1.png" style="display: block; margin: auto;" />
 
 ``` r
 render_camera(theta = 90, phi = 30, zoom = 0.7, fov = 90)
 render_snapshot()
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-14-2.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-15-2.png" style="display: block; margin: auto;" />
 
 ``` r
 render_camera(theta = 120, phi = 20, zoom = 0.3, fov = 90)
 render_snapshot()
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-14-3.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-15-3.png" style="display: block; margin: auto;" />
 
 We can also use some post-processing effects to help guide our viewer
 through our visualization’s 3D space. The easiest method of directing
@@ -507,7 +505,7 @@ render_label(hobart_mat, "River Derwent", textcolor ="white", linecolor="white",
 render_snapshot()
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-15-1.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-16-1.png" style="display: block; margin: auto;" />
 
 ``` r
 render_label(hobart_mat, "Jordan River (not that one)", textcolor ="white", linecolor="white",
@@ -515,7 +513,7 @@ render_label(hobart_mat, "Jordan River (not that one)", textcolor ="white", line
 render_snapshot()
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-15-2.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-16-2.png" style="display: block; margin: auto;" />
 
 We can replace all existing text with the `clear_previous = TRUE`, or
 clear everything by calling `render_label(clear_previous = TRUE)` with
@@ -526,7 +524,7 @@ render_camera(zoom = 0.9, phi=50, theta=-45,fov=0)
 render_snapshot()
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-16-1.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-17-1.png" style="display: block; margin: auto;" />
 
 ``` r
 render_label(hobart_mat, "Mount Faulkner", textcolor ="white", linecolor="white",
@@ -534,7 +532,7 @@ render_label(hobart_mat, "Mount Faulkner", textcolor ="white", linecolor="white"
 render_snapshot()
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-16-2.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-17-2.png" style="display: block; margin: auto;" />
 
 ``` r
 render_label(hobart_mat, "Mount Dromedary", textcolor ="white", linecolor="white",
@@ -542,14 +540,14 @@ render_label(hobart_mat, "Mount Dromedary", textcolor ="white", linecolor="white
 render_snapshot()
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-16-3.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-17-3.png" style="display: block; margin: auto;" />
 
 ``` r
 render_label(clear_previous = TRUE)
 render_snapshot()
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-16-4.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-17-4.png" style="display: block; margin: auto;" />
 
 ``` r
 rgl::rgl.close()
@@ -588,7 +586,8 @@ hobart_mat %>%
   add_shadow(ray_shade(hobart_mat, sunangle = 60, sunaltitude=3, zscale=33, lambert = FALSE), max_darken = 0.5) %>%
   add_shadow(lamb_shade(hobart_mat, sunangle = 60, sunaltitude=3, zscale=33), max_darken = 0.7) %>%
   add_shadow(ambientshadows, max_darken = 0.1) %>%
-  plot_3d(hobart_mat, zscale=10,windowsize=c(1000,1000))
+  plot_3d(hobart_mat, zscale=10,windowsize=c(1000,1000), 
+          background = "#edfffc", shadowcolor = "#273633")
 
 render_camera(theta = 120, phi = 20, zoom = 0.3, fov = 90)
 render_depth(focus = 0.75, preview_focus = TRUE)
@@ -596,13 +595,13 @@ render_depth(focus = 0.75, preview_focus = TRUE)
 
     ## [1] "Focal range: 0.61623-0.977782"
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-17-1.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-18-1.png" style="display: block; margin: auto;" />
 
 ``` r
 render_depth(focus = 0.75)
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-17-2.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-18-2.png" style="display: block; margin: auto;" />
 
 This effect is rather subtle, so let’s increase the focal length of the
 camera using argument `focallength`. This will make for a shallower
@@ -616,7 +615,7 @@ render_depth(focus = 0.75, focallength = 200, title_bar_color = "black",
              title_text = "The River Derwent, Tasmania", title_color = "white", title_size = 50)
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-18-1.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-19-1.png" style="display: block; margin: auto;" />
 
 ``` r
 rgl::rgl.close()
@@ -644,7 +643,7 @@ render_snapshot(title_text = "Monterey Bay, California",
                 title_color = "white", title_bar_color = "black")
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-19-1.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-20-1.png" style="display: block; margin: auto;" />
 
 By default, `plot_3d()` sets the water level at 0 (sea level), but we
 can change this, either by adjusting `waterdepth` in our call to
@@ -659,7 +658,7 @@ render_snapshot(title_text = "Monterey Bay, California (water level: -100 meters
                 title_color = "white", title_bar_color = "black")
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-20-1.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-21-1.png" style="display: block; margin: auto;" />
 
 ``` r
 render_water(montereybay, zscale=50, waterdepth = 30, 
@@ -668,11 +667,83 @@ render_snapshot(title_text = "Monterey Bay, California (water level: 30 meters)"
                 title_color = "white", title_bar_color = "black")
 ```
 
-<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-20-2.png" style="display: block; margin: auto;" />
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-21-2.png" style="display: block; margin: auto;" />
 
 ``` r
 rgl::rgl.close()
 ```
+
+Although our underlying matrix data is rectangular, we aren’t limited to
+rectangular 3D plots. Any entry in the matrix that has a value of `NA`
+will be sliced out of the matrix. Here, we slice out just the
+bathymetric from the `montereybay` dataset. We still use the full matrix
+to calculate the hillshade and shadows, but pass the sliced elevation
+matrix to `plot_3d()`:
+
+``` r
+mont_bathy = montereybay
+mont_bathy[mont_bathy >= 0] = NA
+
+montereybay %>%
+  sphere_shade() %>%
+  add_shadow(ray_shade(mont_bathy,zscale=50, sunaltitude = 15, lambert = FALSE),0.5) %>%
+  plot_3d(mont_bathy, water=TRUE, waterlinecolor = "white",
+          theta=-45, zoom=0.9, windowsize = c(1000,1000))
+```
+
+    ## `montereybay` dataset used with no zscale--setting `zscale=50`.  For a realistic depiction, raise `zscale` to 200.
+
+``` r
+render_snapshot(title_text = "Monterey Bay Canyon", title_color = "white", title_bar_color = "black")
+```
+
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-22-1.png" style="display: block; margin: auto;" />
+
+``` r
+rgl::rgl.clear()
+```
+
+Alternatively, if we just want a more interesting base shape and we
+don’t mind losing some data, we can have rayshader carve your dataset
+into either a hexagon or a circle by specifying the `baseshape` argument
+in `plot_3d()` (I also throw in some new background colors and shadow
+colors because variety is the spice of life):
+
+``` r
+montereybay %>%
+  sphere_shade() %>%
+  add_shadow(ray_shade(montereybay,zscale=50,sunaltitude=15,lambert = FALSE),0.5) %>%
+  plot_3d(montereybay, water=TRUE, waterlinecolor = "white", baseshape = "hex",
+          theta=-45, zoom=0.7, windowsize = c(1000,1000), 
+          shadowcolor = "#4e3b54", background = "#f7e8fc")
+```
+
+    ## `montereybay` dataset used with no zscale--setting `zscale=50`.  For a realistic depiction, raise `zscale` to 200.
+
+``` r
+render_snapshot(title_text = "Monterey Bay Canyon, Hexagon", 
+                title_color = "white", title_bar_color = "black", clear = TRUE)
+```
+
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-23-1.png" style="display: block; margin: auto;" />
+
+``` r
+montereybay %>%
+  sphere_shade() %>%
+  add_shadow(ray_shade(montereybay,zscale=50,sunaltitude = 15,lambert = FALSE),0.5) %>%
+  plot_3d(montereybay, water=TRUE, waterlinecolor = "white", baseshape = "circle",
+          theta=-45, zoom=0.7, windowsize = c(1000,1000),
+          shadowcolor = "#4f3f3a", background = "#ffeae3")
+```
+
+    ## `montereybay` dataset used with no zscale--setting `zscale=50`.  For a realistic depiction, raise `zscale` to 200.
+
+``` r
+render_snapshot(title_text = "Monterey Bay Canyon, Circle", 
+                title_color = "white", title_bar_color = "black", clear = TRUE)
+```
+
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-23-2.png" style="display: block; margin: auto;" />
 
 Taking snapshots of our map is useful, but a static visualizations isn’t
 the ideal form to represent our 3D data. For the viewer, the depth
@@ -808,8 +879,9 @@ summer solstice (June 21st), and the autumnal equinox (Sept 22nd). They
 worked with researchers at the Tandon school of Engineering at NYU to
 develop a raytracer to perform these calculations. This type of analysis
 is particularly timely with the explosion of so-called “pencil towers”
-in Manhattan–extremely tall, skinny skyscrapers lining Central Park.
-When
+in Manhattan–extremely tall, skinny skyscrapers lining Central Park and
+catering to the super wealthy. The question: How are these towers
+affecting
 
 We are going to perform and visualize a similar analysis for erecting a
 hypothetic “pencil tower” in West Philadelphia using lidar data from
@@ -817,7 +889,7 @@ Pennsylvania and rayshader.
 
 Let’s start by loading some lidar data into R. Here’s a link to several
 PDF files listing instructions on how to load data. We’ll start with
-philly.pdf to get instructions for downloading
+philly.pdf to get instructions for downloading our lidar data.
 
 Let’s walk through downloading a specific dataset:
 
@@ -827,20 +899,67 @@ Now, let’s load some lidar data into R. We’ll do this using the
 `whitebox` package, which has several functions for manipulating and
 transforming lidar data, among many other useful features. Here, we’re
 going to load our lidar dataset of Penn Park, right by the Schuylkill.
-
-While this runs, let’s talk
-about
+Many lidar datasets are far too large to easily visualize, and are often
+noisy–we are going to use `whitebox` to clean the data, and turn it into
+a simple elevation model that includes
+buildings.
 
 ``` r
-# whitebox::wbt_lidar_ransac_planes(path.expand("~/Desktop/musa/26849E233974N.las"), num_iter = 1,
-#                                     output = path.expand("~/Desktop/musa/philly_level.las"))
-# 
-# whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/philly_level.las"),
-#                                  output = path.expand("~/Desktop/musa/phillydem.tif"), minz=0,
-#                                  resolution = 1, exclude_cls = c(3,4,5,7,9,18))
+whitebox::wbt_lidar_ransac_planes(path.expand("~/Desktop/musa/26849E233974N.las"), num_iter = 1,
+                                    output = path.expand("~/Desktop/musa/philly_level.las"))
 ```
 
+    ## [1] "lidar_ransac_planes - Elapsed Time (excluding I/O): 48.741s"
+
+``` r
+whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/philly_level.las"),
+                                 output = path.expand("~/Desktop/musa/phillydem.tif"), minz=0,
+                                 resolution = 1, exclude_cls = c(3,4,5,7,9,18))
+```
+
+    ## [1] "lidar_tin_gridding - Elapsed Time (including I/O): 36.851s"
+
+While this runs, let’s talk about general limitations you’ll encounter
+when dealing with lidar data. If you notice, you’ll see `whitebox`
+actually isn’t loading any data into your environment, and for good
+reason. R is memory hungry, and processing a full lidar dataset would be
+difficult on most standard machines. The `whitebox` package operates on
+files ourside of R, and outputs a processed file when it’s done. Once
+the data is transformed from a collection of lidar measurements to a
+regular grid of elevation values, we can load it into R and get to work.
+
+Here’s a backup in case whitebox doesn’t work for you:
+
 Backup: <https://www.tylermw.com/data/phillydem.tif>
+
+Now, let’s load the data into R. Rayshader includes a function,
+`raster_to_matrix()`, that will automatically convert rasters into the
+matrix for rayshader expects.
+
+``` r
+phillyraster = raster::raster("phillydem.tif")
+building_mat = raster_to_matrix(phillyraster)
+```
+
+A 2640x2640 matrix is easily processed in R, but it’s not ideal here for
+two reasons:
+
+1)  Large matrices like this take a while to display in 3D.
+2)  We’re time limited, and the resolution isn’t important to the
+    analysis.
+
+So we’ll use another rayshader function, `reduce_matrix_size()`, to
+cleanly reduce the resolution of the matrix. Here, we’re reducing it by
+half.
+
+``` r
+building_mat_small = reduce_matrix_size(building_mat,0.5)
+dim(building_mat_small)
+```
+
+    ## [1] 1320 1320
+
+Now, we’re going to load in helper functions.
 
 ``` r
 LongLatToUTM = function(x,y,zone){
@@ -879,12 +998,6 @@ owin2SP = function(x) {
   z = SpatialPolygons(list(y))
   return(z)
 }
-```
-
-``` r
-# phillyraster = raster::raster("phillydem.tif")
-# buildingmat = raster_to_matrix(phillyraster)
-# buildingmatsmall = reduce_matrix_size(buildingmat,0.5)
 ```
 
 ``` r
