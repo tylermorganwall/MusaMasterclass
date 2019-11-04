@@ -31,6 +31,7 @@ library(spatstat)
 library(spatstat.utils)
 library(suncalc)
 library(sp)
+library(lubridate)
 setwd("~/Desktop/musa/")
 ```
 
@@ -244,7 +245,7 @@ hobart_mat %>%
 
 To shade surfaces using raytracing, rayshader draws rays originating
 from each point towards a light source, specified using the `sunangle`
-and `anglebreaks` argument. The light by default has a fixed angular
+and `sunaltitude` argument. The light by default has a fixed angular
 width the size of the sun, but the distribution can also be set in the
 argument `anglebreaks`. Here are two gifs showing how rayshader
 calculates shadows with `ray_shade`:
@@ -855,15 +856,35 @@ av::av_encode_video(glue::glue("iceage{1:60}.png"), output = "custom_movie.mp4",
     ## [1] "custom_movie.mp4"
 
 ``` r
+rgl::rgl.close()
+
 unlink(glue::glue("iceage{1:60}.png"))
 unlink("custom_movie.mp4")
 ```
 
+Finally, I’m going to show you a really cool feature I’ve just recently
+implemented: `render_highquality()`. This calls a powerful rendering
+engine built-in to rayshader to create a truly stunning visualization.
+You can control the view entirely through the
+
 <https://maps.psiee.psu.edu/preview/map.ashx?layer=2021>
+
+``` r
+hobart_mat %>%
+  sphere_shade(texture = "desert") %>%
+  add_water(detect_water(hobart_mat),color="desert") %>%
+  plot_3d(hobart_mat,zscale=10)
+render_highquality()
+```
+
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-27-1.png" style="display: block; margin: auto;" />
 
 ``` r
 rgl::rgl.close()
 ```
+
+Here, we no longer need any of the shadow generating functions–the
+shadows are calculated
 
 Now that we know how to use rayshader, let’s use it to create and
 visualize some data\! Back in 2015, the New York Times Upshot had a
@@ -909,7 +930,7 @@ whitebox::wbt_lidar_ransac_planes(path.expand("~/Desktop/musa/26849E233974N.las"
                                     output = path.expand("~/Desktop/musa/philly_level.las"))
 ```
 
-    ## [1] "lidar_ransac_planes - Elapsed Time (excluding I/O): 48.741s"
+    ## [1] "lidar_ransac_planes - Elapsed Time (excluding I/O): 1min 14.567s"
 
 ``` r
 whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/philly_level.las"),
@@ -917,7 +938,7 @@ whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/philly_level.las"),
                                  resolution = 1, exclude_cls = c(3,4,5,7,9,18))
 ```
 
-    ## [1] "lidar_tin_gridding - Elapsed Time (including I/O): 36.851s"
+    ## [1] "lidar_tin_gridding - Elapsed Time (including I/O): 53.157s"
 
 While this runs, let’s talk about general limitations you’ll encounter
 when dealing with lidar data. If you notice, you’ll see `whitebox`
@@ -941,35 +962,109 @@ phillyraster = raster::raster("phillydem.tif")
 building_mat = raster_to_matrix(phillyraster)
 ```
 
-A 2640x2640 matrix is easily processed in R, but it’s not ideal here for
-two reasons:
+A 2640x2640 matrix is easily processed in R, but it’s not ideal here.
+Large matrices (greater than about 2000x2000, but depends on your
+machine) take a while to display in 3D. It’s faster to prototype your
+visualizations using a smaller dataset–once you are happy with the end
+result, you can re-run the script with the original dataset. We’re time
+limited and our visualization doesn’t require a high resolution dataset,
+so we won’t use one.
 
-1)  Large matrices like this take a while to display in 3D.
-2)  We’re time limited, and the resolution isn’t important to the
-    analysis.
-
-So we’ll use another rayshader function, `reduce_matrix_size()`, to
-cleanly reduce the resolution of the matrix. Here, we’re reducing it by
-half.
+To reduce the size of the matrix, we’ll use another rayshader function,
+`reduce_matrix_size()`, to cleanly reduce the resolution of the matrix.
+Here, we’re reducing it by half.
 
 ``` r
-building_mat_small = reduce_matrix_size(building_mat,0.5)
+building_mat_small = reduce_matrix_size(building_mat, 0.25)
 dim(building_mat_small)
 ```
 
-    ## [1] 1320 1320
+    ## [1] 660 660
 
-Now, we’re going to load in helper functions.
+Let’s start by calculating the shadows from the existing buildings in
+this area, so we can compare the . We will be using the `suncalc`
+package to calculate the position of the sun in the sky over
+Philadelphia. `suncalc::getSunlightPosition()` takes a date, time, lat,
+and long and returns the angular position of the sun in the sky. You can
+also use `suncalc::getSunlightTimes()` to obtain the times for sunrise
+and
+sunset.
 
 ``` r
-LongLatToUTM = function(x,y,zone){
- xy = data.frame(ID = 1:length(x), X = x, Y = y)
- coordinates(xy) = c("X", "Y")
- proj4string(xy) = CRS("+proj=longlat +datum=NAD83") 
- res = spTransform(xy, CRS(paste("+proj=utm +zone=",zone," ellps=GRS80",sep='')))
- return(as.data.frame(res))
-}
+getSunlightTimes(as.Date("2019-06-21"), lat = 39.9526, lon = -75.1652,tz="EST")
+```
 
+    ##         date     lat      lon           solarNoon               nadir
+    ## 1 2019-06-21 39.9526 -75.1652 2019-06-21 12:03:39 2019-06-21 00:03:39
+    ##               sunrise              sunset          sunriseEnd
+    ## 1 2019-06-21 04:33:22 2019-06-21 19:33:57 2019-06-21 04:36:38
+    ##           sunsetStart                dawn                dusk
+    ## 1 2019-06-21 19:30:40 2019-06-21 04:00:31 2019-06-21 20:06:47
+    ##          nauticalDawn        nauticalDusk            nightEnd
+    ## 1 2019-06-21 03:18:49 2019-06-21 20:48:29 2019-06-21 02:30:09
+    ##                 night       goldenHourEnd          goldenHour
+    ## 1 2019-06-21 21:37:09 2019-06-21 05:14:06 2019-06-21 18:53:13
+
+``` r
+#Start and hour after sunrise and end an hour before sunset
+philly_time_start = ymd_hms("2019-06-21 05:30:00", tz = "EST")
+philly_time_end= ymd_hms("2019-06-21 18:30:00", tz = "EST")
+
+temptime = philly_time_start
+philly_existing_shadows = list()
+sunanglelist = list()
+counter = 1
+while(temptime < philly_time_end) {
+  sunangles = suncalc::getSunlightPosition(date = temptime, lat = 39.9526, lon = -75.1652)[4:5]*180/pi
+  print(temptime)
+  sunanglelist[[counter]] = temptime
+  philly_existing_shadows[[counter]] = ray_shade(building_mat_small,
+                                  sunangle = sunangles$azimuth+180,
+                                  sunaltitude = sunangles$altitude,
+                                  lambert = FALSE, zscale=4,
+                                  multicore = TRUE)
+  temptime = temptime + duration("3600s")
+  counter = counter + 1
+}
+```
+
+    ## [1] "2019-06-21 05:30:00 EST"
+    ## [1] "2019-06-21 06:30:00 EST"
+    ## [1] "2019-06-21 07:30:00 EST"
+    ## [1] "2019-06-21 08:30:00 EST"
+    ## [1] "2019-06-21 09:30:00 EST"
+    ## [1] "2019-06-21 10:30:00 EST"
+    ## [1] "2019-06-21 11:30:00 EST"
+    ## [1] "2019-06-21 12:30:00 EST"
+    ## [1] "2019-06-21 13:30:00 EST"
+    ## [1] "2019-06-21 14:30:00 EST"
+    ## [1] "2019-06-21 15:30:00 EST"
+    ## [1] "2019-06-21 16:30:00 EST"
+    ## [1] "2019-06-21 17:30:00 EST"
+
+``` r
+shadow_coverage = Reduce(`+`, philly_existing_shadows)/length(philly_existing_shadows)
+
+
+shadow_coverage %>%
+  reshape2::melt(varnames = c("x","y"), value.name = "light") %>%
+  ggplot() + 
+  geom_raster(aes(x=x,y=y,fill=light)) +
+  scale_fill_viridis_c("Daily Light\nCoverage") + 
+  scale_x_continuous(expand=c(0,0)) + 
+  scale_y_continuous(expand=c(0,0))
+```
+
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-31-1.png" style="display: block; margin: auto;" />
+
+Now, let’s build our skyscraper in Penn Park. If we had an actual
+building we wanted to model, we would create a polygon using the spatial
+extent of the building and merge that with our raster. However, since
+this hypothetical building is just being imagined by us, we’re going to
+take a shortcut and just draw it in our R graphics device, and translate
+that to our raster. Let’s load in some functions to help us do this:
+
+``` r
 owin2Polygons = function(x, id="1") {
   stopifnot(is.owin(x))
   x = as.polygonal(x)
@@ -999,6 +1094,123 @@ owin2SP = function(x) {
   return(z)
 }
 ```
+
+We first plot our original raster. The `clickpoly` function from
+`spatstat` allows you to click and define polygon vertices directly on
+your R graphics device. We are going to create a building with four
+vertices, and then use our helper functions to convert those vertices
+into a spatial polygon. We’re then going to rasterize that polygon onto
+the same grid as our original data, and set the height of our
+skyscraper. Finally, using `merge`, we will combine them into a single
+dataset and reduce the
+resolution.
+
+``` r
+plot(phillyraster)
+```
+
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-33-1.png" style="display: block; margin: auto;" />
+
+``` r
+# ployval = clickpoly(nv = 4, add = TRUE)
+# saveRDS(ployval,"tempRDS.Rds")
+ployval = readRDS("tempRDS.Rds")
+test2 = rasterize(owin2SP(ployval), phillyraster, 400)
+philly_with_building = merge(test2,phillyraster)
+
+philly_with_building_mat = raster_to_matrix(philly_with_building)
+philly_with_building_mat_small = reduce_matrix_size(philly_with_building_mat,0.25)
+```
+
+``` r
+getSunlightTimes(as.Date("2019-06-21"), lat = 39.9526, lon = -75.1652,tz="EST")
+```
+
+    ##         date     lat      lon           solarNoon               nadir
+    ## 1 2019-06-21 39.9526 -75.1652 2019-06-21 12:03:39 2019-06-21 00:03:39
+    ##               sunrise              sunset          sunriseEnd
+    ## 1 2019-06-21 04:33:22 2019-06-21 19:33:57 2019-06-21 04:36:38
+    ##           sunsetStart                dawn                dusk
+    ## 1 2019-06-21 19:30:40 2019-06-21 04:00:31 2019-06-21 20:06:47
+    ##          nauticalDawn        nauticalDusk            nightEnd
+    ## 1 2019-06-21 03:18:49 2019-06-21 20:48:29 2019-06-21 02:30:09
+    ##                 night       goldenHourEnd          goldenHour
+    ## 1 2019-06-21 21:37:09 2019-06-21 05:14:06 2019-06-21 18:53:13
+
+``` r
+#Start and hour after sunrise and end an hour before sunset
+philly_time_start = ymd_hms("2019-06-21 05:30:00", tz = "EST")
+philly_time_end= ymd_hms("2019-06-21 18:30:00", tz = "EST")
+
+temptime = philly_time_start
+philly_new_shadows = list()
+sunanglelist = list()
+counter = 1
+while(temptime < philly_time_end) {
+  sunangles = suncalc::getSunlightPosition(date = temptime, lat = 39.9526, lon = -75.1652)[4:5]*180/pi
+  print(temptime)
+  sunanglelist[[counter]] = temptime
+  philly_new_shadows[[counter]] = ray_shade(philly_with_building_mat_small,
+                                  sunangle = sunangles$azimuth+180,
+                                  sunaltitude = sunangles$altitude,
+                                  lambert = FALSE, zscale=4,
+                                  multicore = TRUE)
+  temptime = temptime + duration("3600s")
+  counter = counter + 1
+}
+```
+
+    ## [1] "2019-06-21 05:30:00 EST"
+    ## [1] "2019-06-21 06:30:00 EST"
+    ## [1] "2019-06-21 07:30:00 EST"
+    ## [1] "2019-06-21 08:30:00 EST"
+    ## [1] "2019-06-21 09:30:00 EST"
+    ## [1] "2019-06-21 10:30:00 EST"
+    ## [1] "2019-06-21 11:30:00 EST"
+    ## [1] "2019-06-21 12:30:00 EST"
+    ## [1] "2019-06-21 13:30:00 EST"
+    ## [1] "2019-06-21 14:30:00 EST"
+    ## [1] "2019-06-21 15:30:00 EST"
+    ## [1] "2019-06-21 16:30:00 EST"
+    ## [1] "2019-06-21 17:30:00 EST"
+
+``` r
+new_shadow_coverage = Reduce(`+`, philly_new_shadows)/length(philly_new_shadows)
+
+new_shadow_coverage %>%
+  reshape2::melt(varnames = c("x","y"), value.name = "light") %>%
+  ggplot() + 
+  geom_raster(aes(x=x,y=y,fill=light)) +
+  scale_fill_viridis_c("Daily Light\nCoverage", limits=c(0,1)) + 
+  scale_x_continuous(expand=c(0,0)) + 
+  scale_y_continuous(expand=c(0,0))
+```
+
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-34-1.png" style="display: block; margin: auto;" />
+
+Now
+
+``` r
+building_mat_small %>%
+  rayshader:::fliplr() %>%
+  reshape2::melt(varnames = c("x","y"), value.name = "elevation") ->
+existing_buildings_df
+
+shadow_difference = (shadow_coverage - new_shadow_coverage)
+shadow_difference[shadow_difference < 0] = 0
+
+(1 - shadow_difference) %>%
+  reshape2::melt(varnames = c("x","y"), value.name = "light") %>%
+  ggplot() + 
+  geom_raster(aes(x=x,y=y,fill=light)) +
+  geom_contour(data=existing_buildings_df,aes(x=x,y=y,z=elevation), color="black", alpha = 0.5) +
+  scale_fill_viridis_c("Relative Daily\nLight Coverage", limits=c(0,1)) + 
+  scale_x_continuous(expand=c(0,0)) + 
+  scale_y_continuous(expand=c(0,0)) +
+  ggtitle("Total Daily Sunlight Reduction from \nHypothetical West Philly Skyscraper")
+```
+
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-35-1.png" style="display: block; margin: auto;" />
 
 ``` r
 # library(lubridate)
