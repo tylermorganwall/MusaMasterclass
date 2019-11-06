@@ -497,13 +497,17 @@ through our visualization’s 3D space. The easiest method of directing
 the viewer’s attention is directly labeling the areas we’d like them to
 look at, using the `render_label()` function. This function takes the
 indices of the matrix coordinate area of interest `x` and `y`, and
-displays a `text` label at altitude
-`z`.
+displays a `text` label at altitude `z`. We’ll also use the
+`title_bar_color` argument to add a semi-transparent light bar behind
+our title to help it stand out from the
+background.
 
 ``` r
 render_label(hobart_mat, "River Derwent", textcolor ="white", linecolor="white",
              x = 450, y = 260, z = 1400, textsize = 2.5, linewidth = 4, zscale = 10)
-render_snapshot()
+render_snapshot(title_text = "render_label() demo, part 1", 
+                title_bar_alpha = 0.8,
+                title_bar_color = "white")
 ```
 
 <img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-16-1.png" style="display: block; margin: auto;" />
@@ -511,7 +515,9 @@ render_snapshot()
 ``` r
 render_label(hobart_mat, "Jordan River (not that one)", textcolor ="white", linecolor="white",
              x = 450, y = 140, z = 1400, textsize = 2.5, linewidth = 4, zscale = 10, dashed = TRUE)
-render_snapshot()
+render_snapshot(title_text = "render_label() demo, part 2", 
+                title_bar_alpha = 0.8,
+                title_bar_color = "white")
 ```
 
 <img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-16-2.png" style="display: block; margin: auto;" />
@@ -591,7 +597,7 @@ hobart_mat %>%
           background = "#edfffc", shadowcolor = "#273633")
 
 render_camera(theta = 120, phi = 20, zoom = 0.3, fov = 90)
-render_depth(focus = 0.75, preview_focus = TRUE)
+render_depth(focus = 0.81, preview_focus = TRUE)
 ```
 
     ## [1] "Focal range: 0.61623-0.977782"
@@ -599,7 +605,7 @@ render_depth(focus = 0.75, preview_focus = TRUE)
 <img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-18-1.png" style="display: block; margin: auto;" />
 
 ``` r
-render_depth(focus = 0.75)
+render_depth(focus = 0.81)
 ```
 
 <img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-18-2.png" style="display: block; margin: auto;" />
@@ -607,12 +613,14 @@ render_depth(focus = 0.75)
 This effect is rather subtle, so let’s increase the focal length of the
 camera using argument `focallength`. This will make for a shallower
 depth of field (increase the blurring effect in areas far from the focal
-plane). We can also add a `title_*` argument like in
-`render_snapshot()`, and we’ll use the `title_bar_color` argument to
-create a semi-transparent bar around our title.
+plane). We can also add a `title_*` arguments like in
+`render_snapshot()`, and we’ll add a lens vignetting effect (which
+darkens the edges) by setting `vignette = TRUE`. This option is also
+available in `render_snapshot()` and
+`render_movie()`.
 
 ``` r
-render_depth(focus = 0.75, focallength = 200, title_bar_color = "black",
+render_depth(focus = 0.81, focallength = 200, title_bar_color = "black", vignette = TRUE,
              title_text = "The River Derwent, Tasmania", title_color = "white", title_size = 50)
 ```
 
@@ -663,7 +671,7 @@ render_snapshot(title_text = "Monterey Bay, California (water level: -100 meters
 
 ``` r
 render_water(montereybay, zscale=50, waterdepth = 30, 
-             waterlinecolor = "white", wateralpha=0.87)
+             waterlinecolor = "white", wateralpha=0.7)
 render_snapshot(title_text = "Monterey Bay, California (water level: 30 meters)", 
                 title_color = "white", title_bar_color = "black")
 ```
@@ -695,7 +703,9 @@ montereybay %>%
     ## `montereybay` dataset used with no zscale--setting `zscale=50`.  For a realistic depiction, raise `zscale` to 200.
 
 ``` r
-render_snapshot(title_text = "Monterey Bay Canyon", title_color = "white", title_bar_color = "black")
+render_snapshot(title_text = "Monterey Bay Canyon", 
+                title_color = "white", 
+                title_bar_color = "black")
 ```
 
 <img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-22-1.png" style="display: block; margin: auto;" />
@@ -707,8 +717,8 @@ rgl::rgl.clear()
 Alternatively, if we just want a more interesting base shape and we
 don’t mind losing some data, we can have rayshader carve your dataset
 into either a hexagon or a circle by specifying the `baseshape` argument
-in `plot_3d()` (I also throw in some new background colors and shadow
-colors because variety is the spice of life):
+in `plot_3d()` (I also throw in some new background colors, shadow
+colors, and the vignette effect because variety is the spice of life):
 
 ``` r
 montereybay %>%
@@ -722,7 +732,7 @@ montereybay %>%
     ## `montereybay` dataset used with no zscale--setting `zscale=50`.  For a realistic depiction, raise `zscale` to 200.
 
 ``` r
-render_snapshot(title_text = "Monterey Bay Canyon, Hexagon", 
+render_snapshot(title_text = "Monterey Bay Canyon, Hexagon",  vignette = TRUE,
                 title_color = "white", title_bar_color = "black", clear = TRUE)
 ```
 
@@ -740,7 +750,7 @@ montereybay %>%
     ## `montereybay` dataset used with no zscale--setting `zscale=50`.  For a realistic depiction, raise `zscale` to 200.
 
 ``` r
-render_snapshot(title_text = "Monterey Bay Canyon, Circle", 
+render_snapshot(title_text = "Monterey Bay Canyon, Circle",
                 title_color = "white", title_bar_color = "black", clear = TRUE)
 ```
 
@@ -809,8 +819,19 @@ ease_function = function(beginning, end, steepness = 1, length.out = 180) {
 
 zoom_values = c(ease_function(1,0.3), ease_function(0.3,1))
 
+#This gives us a zoom that looks like this:
+ggplot(data.frame(x=1:360,y=zoom_values),) + 
+  geom_line(aes(x=x,y=y),color="red",size=2) +
+  ggtitle("Zoom value by frame")
+```
+
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-25-1.png" style="display: block; margin: auto;" />
+
+``` r
 render_movie(filename = "montbaycustom.mp4", type = "custom",
-             phi=30 + 15 * sin(1:360 * pi /180), theta = -45 - 1:360, zoom=zoom_values)
+             phi = 30 + 15 * sin(1:360 * pi /180), 
+             theta = -45 - 1:360, 
+             zoom = zoom_values)
 ```
 
     ## [1] "montbaycustom.mp4"
@@ -865,7 +886,10 @@ unlink("custom_movie.mp4")
 Finally, I’m going to show you a really cool feature I’ve just recently
 implemented: `render_highquality()`. This calls a powerful rendering
 engine built-in to rayshader to create a truly stunning visualization.
-You can control the view entirely through the
+You can control the view entirely through the rgl
+window–`render_highquality()` recreates the scene using the
+`rayrender` package and returns a beautiful, pathtraced rendering with
+realistic shadows and lighting.
 
 <https://maps.psiee.psu.edu/preview/map.ashx?layer=2021>
 
@@ -884,7 +908,9 @@ rgl::rgl.close()
 ```
 
 Here, we no longer need any of the shadow generating functions–the
-shadows are calculated
+shadows are calculated automatically during the rendering process.
+
+# Mapping the Shadows of Philadelphia
 
 Now that we know how to use rayshader, let’s use it to create and
 visualize some data\! Back in 2015, the New York Times Upshot had a
@@ -899,10 +925,11 @@ the city spent in shadow: the winter solstice (December 21st), the
 summer solstice (June 21st), and the autumnal equinox (Sept 22nd). They
 worked with researchers at the Tandon school of Engineering at NYU to
 develop a raytracer to perform these calculations. This type of analysis
-is particularly timely with the explosion of so-called “pencil towers”
-in Manhattan–extremely tall, skinny skyscrapers lining Central Park and
-catering to the super wealthy. The question: How are these towers
-affecting
+is particularly important to assess the impact of so-called “pencil
+towers” that have gone up in Manhatten–extremely tall, skinny
+skyscrapers lining Central Park and catering to the super wealthy. How
+do tall buildings affect sunlight, a shared common good and precious
+resource in urban areas?
 
 We are going to perform and visualize a similar analysis for erecting a
 hypothetic “pencil tower” in West Philadelphia using lidar data from
@@ -926,19 +953,12 @@ a simple elevation model that includes
 buildings.
 
 ``` r
-whitebox::wbt_lidar_ransac_planes(path.expand("~/Desktop/musa/26849E233974N.las"), num_iter = 1,
-                                    output = path.expand("~/Desktop/musa/philly_level.las"))
-```
-
-    ## [1] "lidar_ransac_planes - Elapsed Time (excluding I/O): 1min 14.567s"
-
-``` r
-whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/philly_level.las"),
+whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/26849E233974N.las"),
                                  output = path.expand("~/Desktop/musa/phillydem.tif"), minz=0,
-                                 resolution = 1, exclude_cls = c(3,4,5,7,9,18))
+                                 resolution = 1, exclude_cls = '3,4,5,7,13,14,15,16,18')
 ```
 
-    ## [1] "lidar_tin_gridding - Elapsed Time (including I/O): 53.157s"
+    ## [1] "lidar_tin_gridding - Elapsed Time (including I/O): 40.715s"
 
 While this runs, let’s talk about general limitations you’ll encounter
 when dealing with lidar data. If you notice, you’ll see `whitebox`
@@ -972,14 +992,14 @@ so we won’t use one.
 
 To reduce the size of the matrix, we’ll use another rayshader function,
 `reduce_matrix_size()`, to cleanly reduce the resolution of the matrix.
-Here, we’re reducing it by half.
+Here, we’re reducing it by a tenth.
 
 ``` r
-building_mat_small = reduce_matrix_size(building_mat, 0.25)
+building_mat_small = reduce_matrix_size(building_mat, 0.5)
 dim(building_mat_small)
 ```
 
-    ## [1] 660 660
+    ## [1] 1320 1320
 
 Let’s start by calculating the shadows from the existing buildings in
 this area, so we can compare the . We will be using the `suncalc`
@@ -987,8 +1007,11 @@ package to calculate the position of the sun in the sky over
 Philadelphia. `suncalc::getSunlightPosition()` takes a date, time, lat,
 and long and returns the angular position of the sun in the sky. You can
 also use `suncalc::getSunlightTimes()` to obtain the times for sunrise
-and
-sunset.
+and sunset.
+
+This calculation isn’t that slow (~3 minutes), but it’s slow enough that
+I’ve precomputed the results and have uploaded them
+to
 
 ``` r
 getSunlightTimes(as.Date("2019-06-21"), lat = 39.9526, lon = -75.1652,tz="EST")
@@ -1021,7 +1044,7 @@ while(temptime < philly_time_end) {
   philly_existing_shadows[[counter]] = ray_shade(building_mat_small,
                                   sunangle = sunangles$azimuth+180,
                                   sunaltitude = sunangles$altitude,
-                                  lambert = FALSE, zscale=4,
+                                  lambert = FALSE, zscale=2,
                                   multicore = TRUE)
   temptime = temptime + duration("3600s")
   counter = counter + 1
@@ -1043,7 +1066,15 @@ while(temptime < philly_time_end) {
     ## [1] "2019-06-21 17:30:00 EST"
 
 ``` r
+# Pithy "data science" way
 shadow_coverage = Reduce(`+`, philly_existing_shadows)/length(philly_existing_shadows)
+
+## Verbose "programmer" way
+#shadow_coverage = matrix(0, nrow(philly_existing_shadows), ncol(philly_existing_shadows))
+#for(i in seq_len(length(philly_existing_shadows)) {
+#  shadow_coverage = shadow_coverage + philly_existing_shadows[[i]]
+#}
+#shadow_coverage = shadow_coverage/length(philly_existing_shadows)
 
 
 shadow_coverage %>%
@@ -1060,9 +1091,9 @@ shadow_coverage %>%
 Now, let’s build our skyscraper in Penn Park. If we had an actual
 building we wanted to model, we would create a polygon using the spatial
 extent of the building and merge that with our raster. However, since
-this hypothetical building is just being imagined by us, we’re going to
-take a shortcut and just draw it in our R graphics device, and translate
-that to our raster. Let’s load in some functions to help us do this:
+this building is entirely imaginary, we’re going to take a shortcut and
+just draw it in our R graphics device, and merge that into our raster.
+Let’s load in some functions to help us do this:
 
 ``` r
 owin2Polygons = function(x, id="1") {
@@ -1095,14 +1126,14 @@ owin2SP = function(x) {
 }
 ```
 
-We first plot our original raster. The `clickpoly` function from
+First, let’s plot our original raster. The `clickpoly` function from
 `spatstat` allows you to click and define polygon vertices directly on
 your R graphics device. We are going to create a building with four
 vertices, and then use our helper functions to convert those vertices
-into a spatial polygon. We’re then going to rasterize that polygon onto
-the same grid as our original data, and set the height of our
-skyscraper. Finally, using `merge`, we will combine them into a single
-dataset and reduce the
+into a spatial polygon. Then we rasterize that polygon onto the same
+grid as our original data with the `rasterize` function, which also sets
+the height of our skyscraper. Finally, using `merge`, we will combine
+them into a single dataset and reduce the
 resolution.
 
 ``` r
@@ -1116,11 +1147,17 @@ plot(phillyraster)
 # saveRDS(ployval,"tempRDS.Rds")
 ployval = readRDS("tempRDS.Rds")
 test2 = rasterize(owin2SP(ployval), phillyraster, 400)
-philly_with_building = merge(test2,phillyraster)
+philly_with_building = merge(test2, phillyraster)
 
 philly_with_building_mat = raster_to_matrix(philly_with_building)
-philly_with_building_mat_small = reduce_matrix_size(philly_with_building_mat,0.25)
+philly_with_building_mat_small = reduce_matrix_size(philly_with_building_mat,0.5)
 ```
+
+Now we’ll run the same analysis on the new lidar + building elevation
+data. Here’s where the benefit of using a programming language instead
+of a GUI to do GIS work becomes clear: to rerun this analysis with new
+data, we just change the variable names but run the exact same
+code.
 
 ``` r
 getSunlightTimes(as.Date("2019-06-21"), lat = 39.9526, lon = -75.1652,tz="EST")
@@ -1146,14 +1183,16 @@ temptime = philly_time_start
 philly_new_shadows = list()
 sunanglelist = list()
 counter = 1
+ptm = Sys.time()
+
 while(temptime < philly_time_end) {
   sunangles = suncalc::getSunlightPosition(date = temptime, lat = 39.9526, lon = -75.1652)[4:5]*180/pi
   print(temptime)
   sunanglelist[[counter]] = temptime
-  philly_new_shadows[[counter]] = ray_shade(philly_with_building_mat_small,
+  philly_new_shadows[[counter]] = ray_shade(philly_with_building_mat_small, 
                                   sunangle = sunangles$azimuth+180,
                                   sunaltitude = sunangles$altitude,
-                                  lambert = FALSE, zscale=4,
+                                  lambert = FALSE, zscale=2,
                                   multicore = TRUE)
   temptime = temptime + duration("3600s")
   counter = counter + 1
@@ -1175,6 +1214,12 @@ while(temptime < philly_time_end) {
     ## [1] "2019-06-21 17:30:00 EST"
 
 ``` r
+Sys.time() - ptm
+```
+
+    ## Time difference of 2.736847 mins
+
+``` r
 new_shadow_coverage = Reduce(`+`, philly_new_shadows)/length(philly_new_shadows)
 
 new_shadow_coverage %>%
@@ -1188,9 +1233,12 @@ new_shadow_coverage %>%
 
 <img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-34-1.png" style="display: block; margin: auto;" />
 
-Now
+Let’s plot the decrease in total daily sunlight intensity when we add
+the skyscraper. We’ll use the elevation data to overlay a contour map,
+which will give us the building outlines.
 
 ``` r
+#Elevation data without the building
 building_mat_small %>%
   rayshader:::fliplr() %>%
   reshape2::melt(varnames = c("x","y"), value.name = "elevation") ->
@@ -1210,103 +1258,31 @@ shadow_difference[shadow_difference < 0] = 0
   ggtitle("Total Daily Sunlight Reduction from \nHypothetical West Philly Skyscraper")
 ```
 
+    ## Warning: Removed 1 rows containing non-finite values (stat_contour).
+
 <img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-35-1.png" style="display: block; margin: auto;" />
 
+We can also plot a 3D visualization of the actual shadows from that day:
+
 ``` r
-# library(lubridate)
-# 
-# #30 minute buffer
-# datetimephillyrise = ymd_hms("2019-06-21 04:35:00", tz = "EST")
-# datetimephillyset = ymd_hms("2019-06-21 19:30:00", tz = "EST")
-# 
-# temptime = datetimephillyrise
-# philly_shadows = list()
-# sunanglelist = list()
-# counter = 1
-# while(temptime < datetimephillyset) {
-#   sunangles = suncalc::getSunlightPosition(date = temptime, lat = 39.9526, lon = -75.1652)[4:5]*180/pi
-#   print(temptime)
-#   sunanglelist[[counter]] = temptime
-#   # print(sunangles)
-#   # philly_shadows[[counter]] = ray_shade(buildingmatsmall,
-#   #                                 sunangle = sunangles$azimuth+180,
-#   #                                 sunaltitude = sunangles$altitude,
-#   #                                 lambert = FALSE, zscale=2,
-#   #                                 multicore = TRUE)
-#   temptime = temptime + duration("180s")
-#   counter = counter + 1
-# }
-# 
-# for(i in 1:280) {
-#   magick::image_read(glue::glue("phillyshadow{i}.png")) %>%
-#     magick::image_resize("800x800") %>%
-#     magick::image_composite(magick::image_read("overlay.png")) %>%
-#     magick::image_annotate(paste0("University of Pennsylvania, ", as.character(sunanglelist[[i]])), 
-#                        location = paste0("+20+8"),
-#                        size = 30, color = "black", 
-#                        font = "Helvetica") %>%
-#     magick::image_write(glue::glue("smallphilly{i}.png"))
-# }
-# 
-# sphere_shade(buildingmatsmall,colorintensity = 20) -> sphereshaded
-# 
-# for(i in 1:length(philly_shadows)) {
-# sphereshaded %>%
-#   add_shadow(philly_shadows[[i]],0.3) %>%
-#   save_png(filename=glue::glue("phillyshadow{i}"))
-# }
-# 
-# shadowcoverage = philly_shadows[[1]]
-# for(i in 2:15) {
-#   shadowcoverage = shadowcoverage +  philly_shadows[[i]]
-# }
-# shadowcoverage = shadowcoverage/15
-# 
-# plot(phillyraster)
-# ployval = clickpoly(nv=4,add=TRUE)
-# test2 = rasterize(owin2SP(ployval),phillyraster,500)
-# philly_with_building = merge(test2,phillyraster)
-# 
-# philly_with_building_mat = raster_to_matrix(philly_with_building)
-# 
-# philly_building_shadows = list()
-# sunangles = suncalc::getSunlightPosition(date = as.POSIXct(sprintf("2019-06-21 %02d:00:00", i+4),tz="EST"), lat = 39.9526, lon = -75.1652)[4:5]*180/pi
-# philly_building_shadows[[1]] = ray_shade(philly_with_building_mat,
-#                                 sunangle = sunangles$azimuth+180, sunaltitude = sunangles$altitude,
-#                                 lambert = FALSE,zscale=2,
-#                                 multicore = TRUE)
-# philly_with_building_mat %>%
-#   sphere_shade(colorintensity = 20) %>%
-#   add_shadow(philly_building_shadows[[1]],0.3) %>%
-#   plot_map()
-# 
-# 
-# for(i in 2:15) {
-#   sunangles = suncalc::getSunlightPosition(date = as.POSIXct(sprintf("2019-06-21 %02d:00:00", i+4),tz="EST"), lat = 39.9526, lon = -75.1652)[4:5]*180/pi
-#   print(sunangles)
-#   philly_building_shadows[[i]] = ray_shade(philly_with_building_mat,
-#                                   sunangle = sunangles$azimuth+180, sunaltitude = sunangles$altitude,
-#                                   lambert = FALSE,zscale=2,
-#                                   multicore = TRUE)
-# }
-# 
-# shadowcoverage_building = philly_building_shadows[[1]]
-# for(i in 2:15) {
-#   shadowcoverage_building = shadowcoverage_building +  philly_building_shadows[[i]]
-# }
-# shadowcoverage_building = shadowcoverage_building/15
-# 
-# 
-# rayrender:::fliplr(shadowcoverage-shadowcoverage_building) %>%
-#   height_shade(texture = viridis::viridis(256)) %>%
-#   plot_map()
-# 
-# phillydem2 = phillydem
-# phillydem2[phillydem2<0] = 0
-# 
-# phillydem2 %>%
-#   sphere_shade(colorintensity = 10) %>%
-#   plot_3d(phillydem2,windowsize = c(1000,1000))
+philly_with_building_mat_small %>%
+  sphere_shade(colorintensity = 10, sunangle = 93) %>%
+  add_shadow(philly_new_shadows[[4]],0.3) %>%
+  add_water(detect_water(philly_with_building_mat_small,
+                         zscale=2,cutoff=.9997, min_area = 28000)) %>%
+  plot_3d(philly_with_building_mat_small,zscale=2,
+          zoom=0.6,phi=30,fov=70,
+          windowsize=1000, background = "#d9e7ff", shadowcolor = "#313947")
+render_snapshot(title_text = "2019-06-21 9:30 AM, Philadelphia, Hypothetical Skyscraper",
+                title_bar_color = "white",
+                title_bar_alpha = 0.7,
+                vignette = 0.2)
+```
+
+<img src="MusaMasterclass_files/figure-gfm/unnamed-chunk-36-1.png" style="display: block; margin: auto;" />
+
+``` r
+rgl::rgl.close()
 ```
 
 ``` r
