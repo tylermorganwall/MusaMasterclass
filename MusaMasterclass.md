@@ -1266,12 +1266,12 @@ We can also plot a 3D visualization of the actual shadows from that day:
 
 ``` r
 philly_with_building_mat_small %>%
-  sphere_shade(colorintensity = 10, sunangle = 93) %>%
+  sphere_shade(colorintensity = 1, sunangle = 93) %>%
   add_shadow(philly_new_shadows[[4]],0.3) %>%
   add_water(detect_water(philly_with_building_mat_small,
                          zscale=2,cutoff=.9997, min_area = 28000)) %>%
   plot_3d(philly_with_building_mat_small,zscale=2,
-          zoom=0.6,phi=30,fov=70,
+          zoom=0.4,phi=30,fov=70,
           windowsize=1000, background = "#d9e7ff", shadowcolor = "#313947")
 render_snapshot(title_text = "2019-06-21 9:30 AM, Philadelphia, Hypothetical Skyscraper",
                 title_bar_color = "white",
@@ -1284,6 +1284,9 @@ render_snapshot(title_text = "2019-06-21 9:30 AM, Philadelphia, Hypothetical Sky
 ``` r
 rgl::rgl.close()
 ```
+
+We
+could
 
 ``` r
 # whitebox::lidar_remove_outliers("/home/tyler/Downloads/26875E239254N.las", output = "/home/tyler/Downloads/pma.las")
