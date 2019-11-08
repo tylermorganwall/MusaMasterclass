@@ -8,7 +8,7 @@
 | ditor\_options:              |
 | chunk\_output\_type: console |
 
-\#UPenn Masterclass: 3D Mapping and Visualization with R and Rayshader
+# UPenn Masterclass: 3D Mapping and Visualization with R and Rayshader
 
 Tyler Morgan-Wall (@tylermorganwall), Institute for Defense Analyses
 
@@ -100,9 +100,8 @@ direction the slope is facing and the steepness of that slope. This is
 implemented in the rayshader function, `sphere_shade()`. Here’s a video
 explanation of how it works:
 
-<br> <video controls>
-<source src="https://www.tylermw.com/wp-content/uploads/2018/06/fullcombined_web.mp4" type="video/mp4">
-</video> <br>
+[![Link to
+video](images/videofront.png)](https://www.tylermw.com/wp-content/uploads/2018/06/fullcombined_web.mp4)
 
 We’ll take this and plug it into the `sphere_shade()` function, which
 performs this mapping of surface direction and slope to color.
@@ -891,8 +890,6 @@ window–`render_highquality()` recreates the scene using the
 `rayrender` package and returns a beautiful, pathtraced rendering with
 realistic shadows and lighting.
 
-<https://maps.psiee.psu.edu/preview/map.ashx?layer=2021>
-
 ``` r
 hobart_mat %>%
   sphere_shade(texture = "desert") %>%
@@ -941,6 +938,8 @@ philly.pdf to get instructions for downloading our lidar data.
 
 Let’s walk through downloading a specific dataset:
 
+<https://maps.psiee.psu.edu/preview/map.ashx?layer=2021>
+
 Backup: <https://www.tylermw.com/data/26849E233974N.zip>
 
 Now, let’s load some lidar data into R. We’ll do this using the
@@ -954,11 +953,11 @@ buildings.
 
 ``` r
 whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/26849E233974N.las"),
-                                 output = path.expand("~/Desktop/musa/phillydem.tif"), minz=0,
+                                 output = path.expand("~/Desktop/musa/phillydem.tif"),minz=0,
                                  resolution = 1, exclude_cls = '3,4,5,7,13,14,15,16,18')
 ```
 
-    ## [1] "lidar_tin_gridding - Elapsed Time (including I/O): 40.715s"
+    ## [1] "lidar_tin_gridding - Elapsed Time (including I/O): 42.695s"
 
 While this runs, let’s talk about general limitations you’ll encounter
 when dealing with lidar data. If you notice, you’ll see `whitebox`
@@ -1037,6 +1036,7 @@ temptime = philly_time_start
 philly_existing_shadows = list()
 sunanglelist = list()
 counter = 1
+
 while(temptime < philly_time_end) {
   sunangles = suncalc::getSunlightPosition(date = temptime, lat = 39.9526, lon = -75.1652)[4:5]*180/pi
   print(temptime)
@@ -1183,7 +1183,6 @@ temptime = philly_time_start
 philly_new_shadows = list()
 sunanglelist = list()
 counter = 1
-ptm = Sys.time()
 
 while(temptime < philly_time_end) {
   sunangles = suncalc::getSunlightPosition(date = temptime, lat = 39.9526, lon = -75.1652)[4:5]*180/pi
@@ -1212,12 +1211,6 @@ while(temptime < philly_time_end) {
     ## [1] "2019-06-21 15:30:00 EST"
     ## [1] "2019-06-21 16:30:00 EST"
     ## [1] "2019-06-21 17:30:00 EST"
-
-``` r
-Sys.time() - ptm
-```
-
-    ## Time difference of 2.736847 mins
 
 ``` r
 new_shadow_coverage = Reduce(`+`, philly_new_shadows)/length(philly_new_shadows)
@@ -1285,62 +1278,11 @@ render_snapshot(title_text = "2019-06-21 9:30 AM, Philadelphia, Hypothetical Sky
 rgl::rgl.close()
 ```
 
-We
-could
+I’m not going to run the following code, but the code below will produce
+an animation as the shadows move through the day.
 
 ``` r
-# whitebox::lidar_remove_outliers("/home/tyler/Downloads/26875E239254N.las", output = "/home/tyler/Downloads/pma.las")
-# 
-# whitebox::lidar_tin_gridding("/home/tyler/Downloads/pma.las", output = "/home/tyler/Downloads/pma.tif", exclude_cls = c(7))
-# pma_tif = raster::raster("~/Downloads/pma.tif")
-# 
-# pma_tif = matrix(raster::extract(pma_tif, raster::extent(pma_tif)), 
-#                     nrow = ncol(pma_tif), ncol = nrow(pma_tif))
-# 
-# shadowmap = ray_shade(pma_tif, multicore = TRUE)
-# 
-# watertif = pma_tif
-# watertif[pma_tif < 10] = 10
-# watertif2 = pma_tif
-# watertif2[pma_tif > 10] = 0
-# watertif2[pma_tif < 10] = 1
-# 
-# watertif %>%
-#   sphere_shade(sunangle=315,zscale=1/10) %>%
-#   add_water(rayshader:::fliplr(watertif2), color = "lightblue") %>%
-#   add_shadow(ray_shade(watertif, sunangle = 315, multicore = TRUE), 0.2) %>%
-#   add_shadow(ambient_shade(watertif), 0.2) %>%
-#   plot_map()
-# 
-# watertif %>%
-#   sphere_shade(sunangle=315,zscale=1/10) %>%
-#   add_water(rayshader:::fliplr(watertif2), color = "lightblue") %>%
-#   add_shadow(ray_shade(watertif, sunangle = 315, multicore = TRUE), 0.2) %>%
-#   save_png("pma")
-# 
-# watertif %>%
-#   sphere_shade(sunangle=315,zscale=1/10) %>%
-#   add_water(rayshader:::fliplr(watertif2), color = "lightblue") %>%
-#   add_shadow(ray_shade(watertif, sunangle = 315, multicore = TRUE), 0.2) %>%
-#   plot_3d(pma_tif,windowsize = c(1000,1000))
-# render_camera(zoom=0.22, phi=25, theta=105,fov=70)
-# 
-# angles = seq(0,360,length.out = 721)[-721]
-# 
-# phivechalf = 30 + 60 * 1/(1 + exp(seq(-7, 20, length.out = 180)/2))
-# phivecfull = c(phivechalf, rev(phivechalf))
-# 
-# for(i in 1:720) {
-#   render_camera(zoom=0.4, phi=20, theta=315+angles[i],fov=70)
-#   render_depth(focallength=50, focus=0.75, title_text = "Philadelphia Museum of Art",filename = glue::glue("pma{i}"))
-# 
-#   # render_depth(focus=0.75,filename = glue::glue("pma{i}"))
-# }
-```
-
-``` r
-# 
-# tiffiles = list.files("~/Desktop/musa/coastal/", pattern = "tif") 
+# tiffiles = list.files("~/Desktop/musa/coastal/", pattern = "tif")
 # loadedrasters = list()
 # 
 # for(i in 1:length(tiffiles)) {
@@ -1402,22 +1344,38 @@ Florida: <http://dpanther2.ad.fiu.edu/Lidar/lidarNew.php>
 Global elevation data:
 <http://opentopo.sdsc.edu/raster?opentopoID=OTSRTM.082015.4326.1>
 
+GEBCO bathymetry data: <https://download.gebco.net>
+
 Extreme scenario: 10.7 ft sea level rise, 2100
 
 Issue: version \`GLIBC\_2.27’ not found (required by
 /home/tyler/R/x86\_64-pc-linux-gnu-library/3.6/whitebox/WBT/whitebox\_tools)
 
 ``` r
-# library(xml2)
-# library(sp)
-# library(rgdal)
-# library(geoviz)
-# setwd("~/Desktop/musa/")
-# 
-# download.file("http://mapping.ihrc.fiu.edu/FLDEM/monroe/lidar/CH2MHill_Block2_D2/las/zip/LID2007_133434_e.zip", destfile = "1.zip")
-# download.file("http://mapping.ihrc.fiu.edu/FLDEM/monroe/lidar/CH2MHill_Block2_D2/las/zip/LID2007_133435_e.zip", destfile = "2.zip")
-# download.file("http://mapping.ihrc.fiu.edu/FLDEM/monroe/lidar/CH2MHill_Block2_D2/las/zip/LID2007_133734_e.zip", destfile = "3.zip")
-# download.file("http://mapping.ihrc.fiu.edu/FLDEM/monroe/lidar/CH2MHill_Block2_D2/las/zip/LID2007_133735_e.zip", destfile = "4.zip")
+library(xml2)
+library(sp)
+library(rgdal)
+```
+
+    ## rgdal: version: 1.4-4, (SVN revision 833)
+    ##  Geospatial Data Abstraction Library extensions to R successfully loaded
+    ##  Loaded GDAL runtime: GDAL 2.4.2, released 2019/06/28
+    ##  Path to GDAL shared files: /Library/Frameworks/R.framework/Versions/3.6/Resources/library/rgdal/gdal
+    ##  GDAL binary built with GEOS: FALSE 
+    ##  Loaded PROJ.4 runtime: Rel. 5.2.0, September 15th, 2018, [PJ_VERSION: 520]
+    ##  Path to PROJ.4 shared files: /Library/Frameworks/R.framework/Versions/3.6/Resources/library/rgdal/proj
+    ##  Linking to sp version: 1.3-1
+
+``` r
+library(geoviz)
+setwd("~/Desktop/musa/")
+
+
+#Redownload these
+download.file("http://mapping.ihrc.fiu.edu/FLDEM/monroe/lidar/CH2MHill_Block2_D2/las/zip/LID2007_133434_e.zip", destfile = "1.zip")
+download.file("http://mapping.ihrc.fiu.edu/FLDEM/monroe/lidar/CH2MHill_Block2_D2/las/zip/LID2007_133435_e.zip", destfile = "2.zip")
+download.file("http://mapping.ihrc.fiu.edu/FLDEM/monroe/lidar/CH2MHill_Block2_D2/las/zip/LID2007_133734_e.zip", destfile = "3.zip")
+download.file("http://mapping.ihrc.fiu.edu/FLDEM/monroe/lidar/CH2MHill_Block2_D2/las/zip/LID2007_133735_e.zip", destfile = "4.zip")
 # 
 # unzip("1.zip")
 # unzip("2.zip")
