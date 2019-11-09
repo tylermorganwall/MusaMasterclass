@@ -28,18 +28,20 @@ Github: https://www.github.com/tylermorganwall
 
 ```{r, warning=FALSE, message=FALSE}
 # install.packages("whitebox", repos="http://R-Forge.R-project.org")
+# install.packages(c("ggplot2","raster", "spatstat", "spatstat.utils","suncalc","sp","lubridate","rgdal"))
+install.packages("remotes")
 remotes::install_github("giswqs/whiteboxR")
 whitebox::wbt_init()
 library(ggplot2)
 library(whitebox)
 library(rayshader)
-library(geoviz)
 library(raster)
 library(spatstat)
 library(spatstat.utils)
 library(suncalc)
 library(sp)
 library(lubridate)
+library(rgdal)
 setwd("~/Desktop/musa/")
 
 ```
@@ -916,10 +918,6 @@ version `GLIBC_2.27' not found (required by /home/tyler/R/x86_64-pc-linux-gnu-li
 
 ```{r miami}
 
-library(xml2)
-library(sp)
-library(rgdal)
-library(geoviz)
 setwd("~/Desktop/musa/")
 
 
