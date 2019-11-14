@@ -115,7 +115,9 @@ we will use the rayshader function `raster_to_matrix()`.
 
 ``` r
 loadzip = tempfile() 
-download.file("https://tylermw.com/data/dem_01.tif.zip", loadzip)
+download.file("https://dl.dropboxusercontent.com/s/8ltz4j599z4njay/dem_01.tif.zip", loadzip)
+## Alternate Link
+#download.file("https://tylermw.com/data/dem_01.tif.zip", loadzip)
 hobart_tif = raster::raster(unzip(loadzip, "dem_01.tif"))
 unlink(loadzip)
 
@@ -546,7 +548,8 @@ If we want to programmatically change the camera, we can do so with the
 `phi`, `zoom`, and `fov` (field of view). Changing `theta` orbits the
 camera around the scene, while changing `phi` changes the angle above
 the horizon at which the camera is located. Here is a graphic
-demonstrating this relation:
+demonstrating this relation (and [here’s a link to the video from the
+presentation](https://www.tylermw.com/data/all.mp4) ):
 
 ![Figure 7: Demonstration of how ray\_shade() raytraces
 images](images/spherical_coordinates_fixed.png)
@@ -1056,6 +1059,8 @@ well.
 ## Philadelphia Guide
 
 <https://github.com/tylermorganwall/MusaMasterclass/raw/master/data_source_guides/philly.pdf>
+Alternate:
+<https://dl.dropboxusercontent.com/s/5ls2gfjssosr2pa/philly.pdf?dl=0>
 
 Source:
 <https://maps.psiee.psu.edu/preview/map.ashx?layer=2021>
@@ -1063,6 +1068,8 @@ Source:
 ## Florida Guide
 
 <https://github.com/tylermorganwall/MusaMasterclass/raw/master/data_source_guides/florida.pdf>
+Alternate:
+<https://dl.dropboxusercontent.com/s/adf1dsmytnw9f8c/florida.pdf>
 
 Source:
 <http://dpanther2.ad.fiu.edu/Lidar/lidarNew.php>
@@ -1070,6 +1077,8 @@ Source:
 ## Texas Guide
 
 <https://github.com/tylermorganwall/MusaMasterclass/raw/master/data_source_guides/texas.pdf>
+Alternate:
+<https://dl.dropboxusercontent.com/s/89xs8yaet8s0x35/texas.pdf>
 
 Source:
 <https://tnris.org/stratmap/elevation-lidar/>
@@ -1077,6 +1086,8 @@ Source:
 ## SRTM/OpenTopography Global Elevation Data Guide
 
 <https://github.com/tylermorganwall/MusaMasterclass/raw/master/data_source_guides/srtm_global.pdf>
+Alternate:
+<https://dl.dropboxusercontent.com/s/zu46o6ilzejy6gx/srtm_global.pdf?dl=0>
 
 Source:
 <http://opentopo.sdsc.edu/raster?opentopoID=OTSRTM.082015.4326.1>
@@ -1084,6 +1095,8 @@ Source:
 ## GEBCO Global Bathymetry Data Guide
 
 <https://github.com/tylermorganwall/MusaMasterclass/raw/master/data_source_guides/gebco_global_bathymetry.pdf>
+Alternate:
+<https://dl.dropboxusercontent.com/s/i0regel891xajz3/gebco_global_bathymetry.pdf>
 
 Source: <https://download.gebco.net>
 
@@ -1130,10 +1143,12 @@ commented out the below code–you can run it if you want.
 
 ``` r
 ## Download this lidar data
-# download.file("www.tylermw.com/data/LID2007_118755_e.zip",
-#               destfile = "LID2007_118755_e.zip")
-# download.file("www.tylermw.com/data/LID2007_118754_e.zip",
-#               destfile = "LID2007_118754_e.zip")
+# download.file("https://dl.dropboxusercontent.com/s/hkdxt1zbsjp68jl/LID2007_118755_e.zip",destfile = "LID2007_118755_e.zip")
+# download.file("https://dl.dropboxusercontent.com/s/omvb63urfby6ddb/LID2007_118754_e.zip",destfile = "LID2007_118754_e.zip")
+
+##Alternate links
+# download.file("www.tylermw.com/data/LID2007_118755_e.zip",destfile = "LID2007_118755_e.zip")
+# download.file("www.tylermw.com/data/LID2007_118754_e.zip",destfile = "LID2007_118754_e.zip")
 # 
 # unzip("LID2007_118755_e.zip")
 # unzip("LID2007_118754_e.zip")
@@ -1191,8 +1206,12 @@ from the lidar
 data:
 
 ``` r
-download.file("www.tylermw.com/data/miamibeach.tif", destfile = "miamibeach.tif")
-download.file("www.tylermw.com/data/miamibeach2.tif", destfile = "miamibeach2.tif")
+download.file("https://dl.dropboxusercontent.com/s/rwajxbdwtkcw50c/miamibeach.tif", destfile = "miamibeach.tif")
+download.file("https://dl.dropboxusercontent.com/s/39abkh87h05n7rm/miamibeach2.tif", destfile = "miamibeach2.tif")
+
+## Alternate Links
+# download.file("www.tylermw.com/data/miamibeach.tif", destfile = "miamibeach.tif")
+# download.file("www.tylermw.com/data/miamibeach2.tif", destfile = "miamibeach2.tif")
 ```
 
 We’ll load them in with the raster package, and then merge to the two
@@ -1413,6 +1432,9 @@ data.
 
 ``` r
 #291.3 MB
+# download.file("https://dl.dropboxusercontent.com/s/2jge03ptvsley62/26849E233974N.zip", destfile = "26849E233974N.zip")
+
+## Alternate Link
 # download.file("https://www.tylermw.com/data/26849E233974N.zip", destfile = "26849E233974N.zip")
 
 unzip("26849E233974N.zip")
@@ -1422,7 +1444,7 @@ whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/26849E233974N.las")
                                  resolution = 1, exclude_cls = '3,4,5,7,13,14,15,16,18')
 ```
 
-    ## [1] "lidar_tin_gridding - Elapsed Time (including I/O): 48.11s"
+    ## [1] "lidar_tin_gridding - Elapsed Time (including I/O): 42.523s"
 
 Now, let’s load the data into R.
 
@@ -1430,6 +1452,10 @@ Now, let’s load the data into R.
 phillyraster = raster::raster("phillydem.tif")
 
 # backup in case whitebox doesn't work for you
+
+download.file("https://dl.dropboxusercontent.com/s/3auywgq93lokurf/phillydem.tif", destfile = "phillydem.tif")
+
+## Alternate Link
 # download.file("https://www.tylermw.com/data/phillydem.tif", destfile = "phillydem.tif")
 
 building_mat = raster_to_matrix(phillyraster)
@@ -1502,8 +1528,11 @@ counter = 1
 # }
 
 #Downloading the pre-computed data to save time
-download.file("https://www.tylermw.com/data/philly_existing_shadows.Rds", 
+
+download.file("https://dl.dropboxusercontent.com/s/ipgcg51ct8esg3w/philly_existing_shadows.Rds", 
               destfile = "philly_existing_shadows.Rds")
+# download.file("https://www.tylermw.com/data/philly_existing_shadows.Rds", 
+#               destfile = "philly_existing_shadows.Rds")
 
 philly_existing_shadows = readRDS("philly_existing_shadows.Rds")
 str(philly_existing_shadows)
@@ -1610,7 +1639,9 @@ plot(phillyraster)
 ``` r
 # ployval = clickpoly(nv = 4, add = TRUE)
 # saveRDS(ployval,"polygon.Rds")
-download.file("https://www.tylermw.com/data/polygon.Rds", destfile = "polygon.Rds")
+download.file("https://dl.dropboxusercontent.com/s/76u8ih1njjpxsr0/polygon.Rds", destfile = "polygon.Rds")
+## Alternate Link
+#download.file("https://www.tylermw.com/data/polygon.Rds", destfile = "polygon.Rds")
 
 # Always check serialized objects for dangerous code before running them:
 ployval = readRDS("polygon.Rds")
@@ -1684,8 +1715,12 @@ philly_time_end= ymd_hms("2019-06-21 18:30:00", tz = "EST")
 # }
 
 #Downloading the pre-computed data to save time
-download.file("https://www.tylermw.com/data/philly_new_shadows.Rds", 
+download.file("https://dl.dropboxusercontent.com/s/rsfyplworlbi4x7/philly_new_shadows.Rds", 
               destfile = "philly_new_shadows.Rds")
+
+## Alternate Link
+# download.file("https://www.tylermw.com/data/philly_new_shadows.Rds", 
+#               destfile = "philly_new_shadows.Rds")
 
 philly_new_shadows = readRDS("philly_new_shadows.Rds")
 str(philly_new_shadows)
@@ -1818,9 +1853,13 @@ rgl::rgl.close()
 ```
 
 I’m not going to run the following, but the code below will produce a 3D
-rotating animation as the shadows move through the day.
+rotating animation as the shadows move through the
+day.
 
 ``` r
+#download.file("https://dl.dropboxusercontent.com/s/gqnfs71t0u3pmu7/sunangles.Rds",
+#               destfile = "sunangles.Rds")
+## Alternate Link
 # download.file("https://www.tylermw.com/data/sunangles.Rds",
 #               destfile = "sunangles.Rds")
 # 
