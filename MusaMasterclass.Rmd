@@ -8,7 +8,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE, cache = TRUE, fig.width = 7, fig.height = 7, fig.align = "center", dpi = 143)
 ```
 
-# UPenn Masterclass: 3D Mapping and Visualization with R and Rayshader
+# Penn MUSA Masterclass: 3D Mapping and Visualization with R and Rayshader
 
 Tyler Morgan-Wall (@tylermorganwall), Institute for Defense Analyses
 

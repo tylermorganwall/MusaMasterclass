@@ -1,5 +1,5 @@
 
-# UPenn Masterclass: 3D Mapping and Visualization with R and Rayshader
+# Penn MUSA Masterclass: 3D Mapping and Visualization with R and Rayshader
 
 Tyler Morgan-Wall (@tylermorganwall), Institute for Defense Analyses
 
