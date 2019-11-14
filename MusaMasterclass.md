@@ -1096,8 +1096,8 @@ commented out the below code–you can run it if you want.
 # download.file("https://dl.dropboxusercontent.com/s/omvb63urfby6ddb/LID2007_118754_e.zip",destfile = "LID2007_118754_e.zip")
 
 ##Alternate links
-# download.file("www.tylermw.com/data/LID2007_118755_e.zip",destfile = "LID2007_118755_e.zip")
-# download.file("www.tylermw.com/data/LID2007_118754_e.zip",destfile = "LID2007_118754_e.zip")
+# download.file("https://www.tylermw.com/data/LID2007_118755_e.zip",destfile = "LID2007_118755_e.zip")
+# download.file("https://www.tylermw.com/data/LID2007_118754_e.zip",destfile = "LID2007_118754_e.zip")
 # 
 # unzip("LID2007_118755_e.zip")
 # unzip("LID2007_118754_e.zip")
@@ -1159,8 +1159,8 @@ download.file("https://dl.dropboxusercontent.com/s/rwajxbdwtkcw50c/miamibeach.ti
 download.file("https://dl.dropboxusercontent.com/s/39abkh87h05n7rm/miamibeach2.tif", destfile = "miamibeach2.tif")
 
 ## Alternate Links
-# download.file("www.tylermw.com/data/miamibeach.tif", destfile = "miamibeach.tif")
-# download.file("www.tylermw.com/data/miamibeach2.tif", destfile = "miamibeach2.tif")
+# download.file("https://www.tylermw.com/data/miamibeach.tif", destfile = "miamibeach.tif")
+# download.file("https://www.tylermw.com/data/miamibeach2.tif", destfile = "miamibeach2.tif")
 ```
 
 We’ll load them in with the raster package, and then merge to the two
@@ -1187,6 +1187,10 @@ data by a factor of 4.
 ``` r
 # 1/4th the size, so 0.25 for the second argument
 miami_beach_small = reduce_matrix_size(miami_beach, 0.25) 
+
+## Backup:
+#download.file("https://www.tylermw.com/data/miami_beach_small.Rds",destfile = "miami_beach_small.Rds")
+#miami_beach_small = readRDS("miami_beach_small.Rds")
 dim(miami_beach_small)
 ```
 
@@ -1262,6 +1266,10 @@ crop(miami_combined, e) %>%
   raster_to_matrix() %>%
   reduce_matrix_size(0.25) -> 
 miami_cropped 
+
+## Backup
+#download.file("https://www.tylermw.com/data/miami_cropped.Rds",destfile = "miami_cropped.Rds")
+#miami_beach_small = readRDS("miami_cropped.Rds")
 
 miami_cropped %>%
   sphere_shade(texture = "desert") %>%
@@ -1398,14 +1406,13 @@ whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/26849E233974N.las")
 Now, let’s load the data into R.
 
 ``` r
-phillyraster = raster::raster("phillydem.tif")
-
-# backup in case whitebox doesn't work for you
-
+# backups in case whitebox doesn't work for you
 download.file("https://dl.dropboxusercontent.com/s/3auywgq93lokurf/phillydem.tif", destfile = "phillydem.tif")
 
 ## Alternate Link
 # download.file("https://www.tylermw.com/data/phillydem.tif", destfile = "phillydem.tif")
+
+phillyraster = raster::raster("phillydem.tif")
 
 building_mat = raster_to_matrix(phillyraster)
 ```
@@ -1420,6 +1427,10 @@ visualization doesn’t require a high resolution dataset, so we won’t use
 one. Let’s reduce it by a factor of 2.
 
 ``` r
+## Alternate Link
+# download.file("https://www.tylermw.com/data/building_mat_small.Rds", destfile = "building_mat_small.Rds")
+# building_mat_small = readRDS("building_mat_small.Rds")
+
 building_mat_small = reduce_matrix_size(building_mat, 0.5)
 dim(building_mat_small)
 ```

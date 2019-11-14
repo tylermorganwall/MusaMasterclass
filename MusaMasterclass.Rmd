@@ -734,8 +734,8 @@ Now, let's load some lidar data into R. We'll do this using the `whitebox` packa
 # download.file("https://dl.dropboxusercontent.com/s/omvb63urfby6ddb/LID2007_118754_e.zip",destfile = "LID2007_118754_e.zip")
 
 ##Alternate links
-# download.file("www.tylermw.com/data/LID2007_118755_e.zip",destfile = "LID2007_118755_e.zip")
-# download.file("www.tylermw.com/data/LID2007_118754_e.zip",destfile = "LID2007_118754_e.zip")
+# download.file("https://www.tylermw.com/data/LID2007_118755_e.zip",destfile = "LID2007_118755_e.zip")
+# download.file("https://www.tylermw.com/data/LID2007_118754_e.zip",destfile = "LID2007_118754_e.zip")
 # 
 # unzip("LID2007_118755_e.zip")
 # unzip("LID2007_118754_e.zip")
@@ -788,8 +788,8 @@ download.file("https://dl.dropboxusercontent.com/s/rwajxbdwtkcw50c/miamibeach.ti
 download.file("https://dl.dropboxusercontent.com/s/39abkh87h05n7rm/miamibeach2.tif", destfile = "miamibeach2.tif")
 
 ## Alternate Links
-# download.file("www.tylermw.com/data/miamibeach.tif", destfile = "miamibeach.tif")
-# download.file("www.tylermw.com/data/miamibeach2.tif", destfile = "miamibeach2.tif")
+# download.file("https://www.tylermw.com/data/miamibeach.tif", destfile = "miamibeach.tif")
+# download.file("https://www.tylermw.com/data/miamibeach2.tif", destfile = "miamibeach2.tif")
 
 ```
 
@@ -814,6 +814,10 @@ This is very large! Too large to easily visualize. Let's downsample the data by 
 
 # 1/4th the size, so 0.25 for the second argument
 miami_beach_small = reduce_matrix_size(miami_beach, 0.25) 
+
+## Backup:
+#download.file("https://www.tylermw.com/data/miami_beach_small.Rds",destfile = "miami_beach_small.Rds")
+#miami_beach_small = readRDS("miami_beach_small.Rds")
 dim(miami_beach_small)
 
 miami_beach_small %>%
@@ -870,6 +874,10 @@ crop(miami_combined, e) %>%
   raster_to_matrix() %>%
   reduce_matrix_size(0.25) -> 
 miami_cropped 
+
+## Backup
+#download.file("https://www.tylermw.com/data/miami_cropped.Rds",destfile = "miami_cropped.Rds")
+#miami_beach_small = readRDS("miami_cropped.Rds")
 
 miami_cropped %>%
   sphere_shade(texture = "desert") %>%
@@ -963,15 +971,13 @@ Now, let's load the data into R.
 
 ```{r loadphilly}
 
-
-phillyraster = raster::raster("phillydem.tif")
-
-# backup in case whitebox doesn't work for you
-
+# backups in case whitebox doesn't work for you
 download.file("https://dl.dropboxusercontent.com/s/3auywgq93lokurf/phillydem.tif", destfile = "phillydem.tif")
 
 ## Alternate Link
 # download.file("https://www.tylermw.com/data/phillydem.tif", destfile = "phillydem.tif")
+
+phillyraster = raster::raster("phillydem.tif")
 
 building_mat = raster_to_matrix(phillyraster)
 
@@ -980,6 +986,10 @@ building_mat = raster_to_matrix(phillyraster)
 A 2640x2640 matrix is easily processed in R, but it's not ideal for developing a visualization. Large matrices (greater than about 2000x2000, but depends on your machine) take a while to display in 3D. It's faster to prototype your visualizations using a smaller dataset--once you are happy with the end result, you can re-run the script with the original hi-res data. We're time limited and our visualization doesn't require a high resolution dataset, so we won't use one. Let's reduce it by a factor of 2.
 
 ```{r reducephilly}
+
+## Alternate Link
+# download.file("https://www.tylermw.com/data/building_mat_small.Rds", destfile = "building_mat_small.Rds")
+# building_mat_small = readRDS("building_mat_small.Rds")
 
 building_mat_small = reduce_matrix_size(building_mat, 0.5)
 dim(building_mat_small)
