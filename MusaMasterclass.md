@@ -9,8 +9,11 @@ Rayshader website: <https://www.rayshader.com>
 
 Github: <https://www.github.com/tylermorganwall>
 
-First, let’s install all the required packages for this
-masterclass.
+First, let’s install all the required packages for this masterclass. I
+would recommend R 3.6.0 as a minimum requirement for this class–lower
+versions of R have a different RDS version, and if you have trouble with
+some of the raster operations you won’t be able to load the back-up RDS
+files.
 
 ``` r
 # install.packages(c("ggplot2","raster", "rayrender", "spatstat", "spatstat.utils","suncalc","here", "sp","lubridate","rgdal", "magick", "av","xml2"))
@@ -1269,7 +1272,10 @@ miami_cropped
 
 ## Backup
 #download.file("https://www.tylermw.com/data/miami_cropped.Rds",destfile = "miami_cropped.Rds")
-#miami_beach_small = readRDS("miami_cropped.Rds")
+#miami_cropped = readRDS("miami_cropped.Rds")
+## R 3.5 and below:
+#download.file("https://www.tylermw.com/data/miami_cropped_oldr.Rds",destfile = "miami_cropped.Rds")
+#miami_cropped = readRDS("miami_cropped.Rds")
 
 miami_cropped %>%
   sphere_shade(texture = "desert") %>%
