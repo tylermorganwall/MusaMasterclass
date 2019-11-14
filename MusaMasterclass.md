@@ -35,70 +35,13 @@ library(whitebox)
 library(rayshader)
 library(rayrender)
 library(raster)
-```
-
-    ## Loading required package: sp
-
-``` r
 library(spatstat)
-```
-
-    ## Loading required package: spatstat.data
-
-    ## Loading required package: nlme
-
-    ## 
-    ## Attaching package: 'nlme'
-
-    ## The following object is masked from 'package:raster':
-    ## 
-    ##     getData
-
-    ## Loading required package: rpart
-
-    ## Registered S3 method overwritten by 'spatstat':
-    ##   method      from  
-    ##   plot.imlist imager
-
-    ## 
-    ## spatstat 1.61-0       (nickname: 'Puppy zoomies') 
-    ## For an introduction to spatstat, type 'beginner'
-
-    ## 
-    ## Attaching package: 'spatstat'
-
-    ## The following objects are masked from 'package:raster':
-    ## 
-    ##     area, rotate, shift
-
-``` r
 library(spatstat.utils)
 library(suncalc)
 library(sp)
 library(lubridate)
-```
-
-    ## 
-    ## Attaching package: 'lubridate'
-
-    ## The following object is masked from 'package:base':
-    ## 
-    ##     date
-
-``` r
 library(rgdal)
-```
 
-    ## rgdal: version: 1.4-7, (SVN revision 845)
-    ##  Geospatial Data Abstraction Library extensions to R successfully loaded
-    ##  Loaded GDAL runtime: GDAL 2.4.2, released 2019/06/28
-    ##  Path to GDAL shared files: /Library/Frameworks/R.framework/Versions/3.6/Resources/library/rgdal/gdal
-    ##  GDAL binary built with GEOS: FALSE 
-    ##  Loaded PROJ.4 runtime: Rel. 5.2.0, September 15th, 2018, [PJ_VERSION: 520]
-    ##  Path to PROJ.4 shared files: /Library/Frameworks/R.framework/Versions/3.6/Resources/library/rgdal/proj
-    ##  Linking to sp version: 1.3-1
-
-``` r
 setwd(here::here())
 ```
 
@@ -589,11 +532,17 @@ look at, using the `render_label()` function. This function takes the
 indices of the matrix coordinate area of interest `x` and `y`, and
 displays a `text` label at altitude `z`. We’ll also use the
 `title_bar_color` argument to add a semi-transparent light bar behind
-our title to help it stand out from the
-background.
+our title to help it stand out from the background.
 
 ``` r
-render_label(hobart_mat, "River Derwent", textcolor ="white", linecolor = "white",
+#Windows? Turn off freetype.
+if(.Platform$OS.type == "windows") {
+  freetype = FALSE
+} else {
+  freetype = TRUE
+}
+
+render_label(hobart_mat, "River Derwent", textcolor ="white", linecolor = "white", freetype = freetype,
              x = 450, y = 260, z = 1400, textsize = 2.5, linewidth = 4, zscale = 10)
 render_snapshot(title_text = "render_label() demo, part 1", 
                 title_bar_alpha = 0.8,
@@ -603,7 +552,7 @@ render_snapshot(title_text = "render_label() demo, part 1",
 <img src="MusaMasterclass_files/figure-gfm/labels-1.png" style="display: block; margin: auto;" />
 
 ``` r
-render_label(hobart_mat, "Jordan River (not that one)", textcolor ="white", linecolor = "white",
+render_label(hobart_mat, "Jordan River (not that one)", textcolor ="white", linecolor = "white", freetype = freetype,
              x = 450, y = 140, z = 1400, textsize = 2.5, linewidth = 4, zscale = 10, dashed = TRUE)
 render_snapshot(title_text = "render_label() demo, part 2", 
                 title_bar_alpha = 0.8,
@@ -624,7 +573,7 @@ render_snapshot()
 <img src="MusaMasterclass_files/figure-gfm/morelabels-1.png" style="display: block; margin: auto;" />
 
 ``` r
-render_label(hobart_mat, "Mount Faulkner", textcolor ="white", linecolor = "white",
+render_label(hobart_mat, "Mount Faulkner", textcolor ="white", linecolor = "white", freetype = freetype,
              x = 135, y = 130, z = 2500, textsize = 2, linewidth = 3, zscale = 10, clear_previous = TRUE)
 render_snapshot()
 ```
@@ -632,7 +581,7 @@ render_snapshot()
 <img src="MusaMasterclass_files/figure-gfm/morelabels-2.png" style="display: block; margin: auto;" />
 
 ``` r
-render_label(hobart_mat, "Mount Dromedary", textcolor ="white", linecolor = "white",
+render_label(hobart_mat, "Mount Dromedary", textcolor ="white", linecolor = "white", freetype = freetype, 
              x = 320, y = 390, z = 1000, textsize = 2, linewidth = 3, zscale = 10)
 render_snapshot()
 ```
@@ -640,7 +589,7 @@ render_snapshot()
 <img src="MusaMasterclass_files/figure-gfm/morelabels-3.png" style="display: block; margin: auto;" />
 
 ``` r
-render_label(clear_previous = TRUE)
+render_label(clear_previous = TRUE, freetype = freetype)
 render_snapshot()
 ```
 
@@ -1444,7 +1393,7 @@ whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/26849E233974N.las")
                                  resolution = 1, exclude_cls = '3,4,5,7,13,14,15,16,18')
 ```
 
-    ## [1] "lidar_tin_gridding - Elapsed Time (including I/O): 42.523s"
+    ## [1] "lidar_tin_gridding - Elapsed Time (including I/O): 41.419s"
 
 Now, let’s load the data into R.
 

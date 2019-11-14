@@ -37,7 +37,7 @@ First, let's install all the required packages for this masterclass.
 
 Now load the packages:
 
-```{r library, echo=TRUE, results = "hide"}
+```{r library, warning=FALSE, message=FALSE}
 
 options(rgl.useNULL = FALSE)
 library(ggplot2)
@@ -378,13 +378,20 @@ We can also use some post-processing effects to help guide our viewer through ou
 
 ```{r labels}
 
-render_label(hobart_mat, "River Derwent", textcolor ="white", linecolor = "white",
+#Windows? Turn off freetype.
+if(.Platform$OS.type == "windows") {
+  freetype = FALSE
+} else {
+  freetype = TRUE
+}
+
+render_label(hobart_mat, "River Derwent", textcolor ="white", linecolor = "white", freetype = freetype,
              x = 450, y = 260, z = 1400, textsize = 2.5, linewidth = 4, zscale = 10)
 render_snapshot(title_text = "render_label() demo, part 1", 
                 title_bar_alpha = 0.8,
                 title_bar_color = "white")
 
-render_label(hobart_mat, "Jordan River (not that one)", textcolor ="white", linecolor = "white",
+render_label(hobart_mat, "Jordan River (not that one)", textcolor ="white", linecolor = "white", freetype = freetype,
              x = 450, y = 140, z = 1400, textsize = 2.5, linewidth = 4, zscale = 10, dashed = TRUE)
 render_snapshot(title_text = "render_label() demo, part 2", 
                 title_bar_alpha = 0.8,
@@ -399,15 +406,15 @@ We can replace all existing text with the `clear_previous = TRUE`, or clear ever
 render_camera(zoom = 0.9, phi = 50, theta = -45,fov = 0)
 render_snapshot()
 
-render_label(hobart_mat, "Mount Faulkner", textcolor ="white", linecolor = "white",
+render_label(hobart_mat, "Mount Faulkner", textcolor ="white", linecolor = "white", freetype = freetype,
              x = 135, y = 130, z = 2500, textsize = 2, linewidth = 3, zscale = 10, clear_previous = TRUE)
 render_snapshot()
 
-render_label(hobart_mat, "Mount Dromedary", textcolor ="white", linecolor = "white",
+render_label(hobart_mat, "Mount Dromedary", textcolor ="white", linecolor = "white", freetype = freetype, 
              x = 320, y = 390, z = 1000, textsize = 2, linewidth = 3, zscale = 10)
 render_snapshot()
 
-render_label(clear_previous = TRUE)
+render_label(clear_previous = TRUE, freetype = freetype)
 render_snapshot()
 
 rgl::rgl.close()
