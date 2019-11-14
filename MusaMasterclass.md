@@ -16,7 +16,7 @@ some of the raster operations you won’t be able to load the back-up RDS
 files.
 
 ``` r
-# install.packages(c("ggplot2","raster", "rayrender", "spatstat", "spatstat.utils","suncalc","here", "sp","lubridate","rgdal", "magick", "av","xml2"))
+# install.packages(c("ggplot2","raster", "rayrender", "spatstat", "spatstat.utils","suncalc","here", "sp","lubridate","rgdal", "magick", "av","xml2", "dplyr"))
 
 #macOS: xcrun issue? type "xcode-select --install" into terminal
 #macOS imager.so or libx11 errors? Install X11: https://www.xquartz.org
@@ -1274,8 +1274,8 @@ miami_cropped
 #download.file("https://www.tylermw.com/data/miami_cropped.Rds",destfile = "miami_cropped.Rds")
 #miami_cropped = readRDS("miami_cropped.Rds")
 ## R 3.5 and below:
-#download.file("https://www.tylermw.com/data/miami_cropped_oldr.Rds",destfile = "miami_cropped.Rds")
-#miami_cropped = readRDS("miami_cropped.Rds")
+#download.file("https://www.tylermw.com/data/miami_cropped_oldr.Rds",destfile = "miami_cropped_oldr.Rds")
+#miami_cropped = readRDS("miami_cropped_oldr.Rds")
 
 miami_cropped %>%
   sphere_shade(texture = "desert") %>%

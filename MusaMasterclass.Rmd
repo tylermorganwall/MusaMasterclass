@@ -22,7 +22,7 @@ First, let's install all the required packages for this masterclass. I would rec
 
 ```{r install, warning=FALSE, message=FALSE}
 
-# install.packages(c("ggplot2","raster", "rayrender", "spatstat", "spatstat.utils","suncalc","here", "sp","lubridate","rgdal", "magick", "av","xml2"))
+# install.packages(c("ggplot2","raster", "rayrender", "spatstat", "spatstat.utils","suncalc","here", "sp","lubridate","rgdal", "magick", "av","xml2", "dplyr"))
 
 #macOS: xcrun issue? type "xcode-select --install" into terminal
 #macOS imager.so or libx11 errors? Install X11: https://www.xquartz.org
@@ -740,13 +740,13 @@ Now, let's load some lidar data into R. We'll do this using the `whitebox` packa
 # unzip("LID2007_118755_e.zip")
 # unzip("LID2007_118754_e.zip")
 # 
-# whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/LID2007_118755_e.las"),
-#                                  output = path.expand("~/Desktop/musa/miamibeach.tif"),
+# whitebox::wbt_lidar_tin_gridding(here::here("LID2007_118755_e.las"),
+#                                  output = here::here("miamibeach.tif"),
 #                                   resolution = 1, verbose_mode = TRUE,
 #                                  exclude_cls = '3,4,5,7,13,14,15,16,18')
 # 
-# whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/LID2007_118754_e.las"),
-#                                  output = path.expand("~/Desktop/musa/miamibeach2.tif"),
+# whitebox::wbt_lidar_tin_gridding(here::here("LID2007_118754_e.las"),
+#                                  output = here::here("miamibeach2.tif"),
 #                                   resolution = 1, verbose_mode = TRUE,
 #                                  exclude_cls = '3,4,5,7,13,14,15,16,18')
 
@@ -879,8 +879,8 @@ miami_cropped
 #download.file("https://www.tylermw.com/data/miami_cropped.Rds",destfile = "miami_cropped.Rds")
 #miami_cropped = readRDS("miami_cropped.Rds")
 ## R 3.5 and below:
-#download.file("https://www.tylermw.com/data/miami_cropped_oldr.Rds",destfile = "miami_cropped.Rds")
-#miami_cropped = readRDS("miami_cropped.Rds")
+#download.file("https://www.tylermw.com/data/miami_cropped_oldr.Rds",destfile = "miami_cropped_oldr.Rds")
+#miami_cropped = readRDS("miami_cropped_oldr.Rds")
 
 miami_cropped %>%
   sphere_shade(texture = "desert") %>%
@@ -964,8 +964,8 @@ Here, we're going to load our lidar dataset of Penn Park, right by the Schuylkil
 
 unzip("26849E233974N.zip")
 
-whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/26849E233974N.las"),
-                                 output = path.expand("~/Desktop/musa/phillydem.tif"), minz = 0,
+whitebox::wbt_lidar_tin_gridding(here::here("26849E233974N.las"),
+                                 output = here::here("phillydem.tif"), minz = 0,
                                  resolution = 1, exclude_cls = '3,4,5,7,13,14,15,16,18')
 
 ```
