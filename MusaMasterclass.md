@@ -1105,13 +1105,13 @@ commented out the below code–you can run it if you want.
 # unzip("LID2007_118755_e.zip")
 # unzip("LID2007_118754_e.zip")
 # 
-# whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/LID2007_118755_e.las"),
-#                                  output = path.expand("~/Desktop/musa/miamibeach.tif"),
+# whitebox::wbt_lidar_tin_gridding(here::here("LID2007_118755_e.las"),
+#                                  output = here::here("miamibeach.tif"),
 #                                   resolution = 1, verbose_mode = TRUE,
 #                                  exclude_cls = '3,4,5,7,13,14,15,16,18')
 # 
-# whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/LID2007_118754_e.las"),
-#                                  output = path.expand("~/Desktop/musa/miamibeach2.tif"),
+# whitebox::wbt_lidar_tin_gridding(here::here("LID2007_118754_e.las"),
+#                                  output = here::here("miamibeach2.tif"),
 #                                   resolution = 1, verbose_mode = TRUE,
 #                                  exclude_cls = '3,4,5,7,13,14,15,16,18')
 ```
@@ -1402,12 +1402,12 @@ data.
 
 unzip("26849E233974N.zip")
 
-whitebox::wbt_lidar_tin_gridding(path.expand("~/Desktop/musa/26849E233974N.las"),
-                                 output = path.expand("~/Desktop/musa/phillydem.tif"), minz = 0,
+whitebox::wbt_lidar_tin_gridding(here::here("26849E233974N.las"),
+                                 output = here::here("phillydem.tif"), minz = 0,
                                  resolution = 1, exclude_cls = '3,4,5,7,13,14,15,16,18')
 ```
 
-    ## [1] "lidar_tin_gridding - Elapsed Time (including I/O): 41.419s"
+    ## [1] "lidar_tin_gridding - Elapsed Time (including I/O): 42.260s"
 
 Now, let’s load the data into R.
 
